@@ -82,7 +82,7 @@ export class AuditController {
   @Delete('clean')
   // @Roles('ADMIN')
   @SkipAudit()
-  async cleanOldLogs(@Query('days') days?: number) {
+  async cleanOldLogs(@Query('days') days?: number): Promise<any> {
     return this.auditService.cleanOldLogs(days ? Number(days) : 90);
   }
 }

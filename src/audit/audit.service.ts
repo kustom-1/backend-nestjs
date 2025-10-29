@@ -201,7 +201,7 @@ export class AuditService {
   /**
    * Limpia registros antiguos (opcional, para mantener la BD)
    */
-  async cleanOldLogs(daysToKeep: number = 90) {
+  async cleanOldLogs(daysToKeep: number = 90): Promise<any> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
