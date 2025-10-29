@@ -13,6 +13,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    // Log payload to help debug authentication issues (e.g. missing token on some requests)
+    try {
+      console.log('JwtStrategy.validate payload:', payload);
+    } catch (err) {
+      console.error('Error logging JWT payload:', err);
+    }
+
     return { id: payload.sub, email: payload.email, role: payload.role };
   }
 }
