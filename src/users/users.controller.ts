@@ -32,11 +32,17 @@ export class UsersController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard('jwt'), AbacGuard)
+  @Resource('users')
+  @Action('update')
   async update(@Param('id') id: number, @Body() userData: Partial<User>): Promise<User> {
     return this.usersService.update(id, userData);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'), AbacGuard)
+  @Resource('users')
+  @Action('delete')
   async delete(@Param('id') id: number) {
     return this.usersService.delete(id);
   }
