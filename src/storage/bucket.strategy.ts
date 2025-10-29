@@ -5,7 +5,7 @@ import type { StorageStrategy } from './storage.strategy';
 @Injectable()
 export class BucketStrategy implements StorageStrategy, OnModuleDestroy {
   private isConnectedFlag = false;
-  private bucketClient: any; // Aquí podrías usar AWS S3, Google Cloud Storage, etc.
+  private bucketClient: any; // usar AWS S3, Google Cloud Storage, etc.
 
   constructor(private configService: ConfigService) {}
 
@@ -15,7 +15,7 @@ export class BucketStrategy implements StorageStrategy, OnModuleDestroy {
     }
 
     try {
-      // Aquí implementarías la conexión al servicio de bucket
+      // Establecer la conexión al servicio de bucket
       // Por ejemplo, para AWS S3:
       // this.bucketClient = new AWS.S3({
       //   accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
