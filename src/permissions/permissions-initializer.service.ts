@@ -15,7 +15,6 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
     } catch (error) {
       console.error('Failed to initialize role permissions during application bootstrap:', error);
       // No lanzar el error para permitir que la aplicación continúe iniciando
-      // Los permisos se pueden inicializar manualmente más tarde si es necesario
     }
   }
 
@@ -63,31 +62,70 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
 
       console.log('Initializing role permissions for the first time...');
 
-      // Definir permisos por defecto basados en los requerimientos
-      const defaultRolePermissions = [
-        // COORDINADOR - Acceso completo
-        { role: UserRole.COORDINADOR, resource: 'users', action: 'create', description: 'Crear usuarios' },
-        { role: UserRole.COORDINADOR, resource: 'users', action: 'read', description: 'Consultar usuarios' },
-        { role: UserRole.COORDINADOR, resource: 'users', action: 'update', description: 'Actualizar usuarios' },
-        { role: UserRole.COORDINADOR, resource: 'users', action: 'delete', description: 'Eliminar usuarios' },
-        { role: UserRole.COORDINADOR, resource: 'documents', action: 'subir', description: 'Subir documentos' },
-        { role: UserRole.COORDINADOR, resource: 'documents', action: 'editar', description: 'Editar documentos' },
-        { role: UserRole.COORDINADOR, resource: 'documents', action: 'consultar', description: 'Consultar documentos' },
-        { role: UserRole.COORDINADOR, resource: 'documents', action: 'prestar', description: 'Prestar documentos' },
-        { role: UserRole.COORDINADOR, resource: 'documents', action: 'autorizar_prestamo', description: 'Autorizar préstamos' },
-        { role: UserRole.COORDINADOR, resource: 'documents', action: 'eliminar', description: 'Eliminar documentos' },
-        
-        // AUXILIAR - Gestión de documentos completa
-        { role: UserRole.AUXILIAR, resource: 'documents', action: 'subir', description: 'Subir documentos' },
-        { role: UserRole.AUXILIAR, resource: 'documents', action: 'editar', description: 'Editar documentos' },
-        { role: UserRole.AUXILIAR, resource: 'documents', action: 'consultar', description: 'Consultar documentos' },
-        { role: UserRole.AUXILIAR, resource: 'documents', action: 'prestar', description: 'Prestar documentos' },
-        { role: UserRole.AUXILIAR, resource: 'documents', action: 'autorizar_prestamo', description: 'Autorizar préstamos' },
-        { role: UserRole.AUXILIAR, resource: 'documents', action: 'eliminar', description: 'Eliminar documentos' },
-        
-        // CONSULTOR - Solo consulta
-        { role: UserRole.CONSULTOR, resource: 'documents', action: 'consultar', description: 'Consultar documentos' },
+      // Definir permisos por defecto basados en los controladores existentes
+      // Recursos detectados (basado en los controladores actuales):
+      // cloths, categories, designs, images, carts, custom_images, cart_design,
+      // stocks, addresses, order, transactions, design_history, users
+      const resources = [
+        'cloths',
+        'categories',
+        'designs',
+        'images',
+        'carts',
+        'custom_images',
+        'cart_design',
+        'stocks',
+        'addresses',
+        'order',
+        'transactions',
+        'design_history',
+        'users',
       ];
+
+      // Actions we support from controllers: create, read, update, delete
+      const crudActions = ['create', 'read', 'update', 'delete'];
+
+      const defaultRolePermissions = [] as Array<{
+        role: UserRole;
+        resource: string;
+        action: string;
+        description?: string;
+      }>;
+
+      // COORDINADOR: acceso completo a todos los recursos
+      for (const resource of resources) {
+        for (const action of crudActions) {
+          defaultRolePermissions.push({
+            role: UserRole.COORDINADOR,
+            resource,
+            action,
+            description: `${action} ${resource}`,
+          });
+        }
+      }
+
+      // AUXILIAR: permisos de gestión para la mayoría de recursos (excepto gestión de roles/users avanzados)
+      const auxiliarManaged = resources.filter(r => r !== 'users');
+      for (const resource of auxiliarManaged) {
+        for (const action of crudActions) {
+          defaultRolePermissions.push({
+            role: UserRole.AUXILIAR,
+            resource,
+            action,
+            description: `${action} ${resource}`,
+          });
+        }
+      }
+
+      // CONSULTOR: solo lectura en todos los recursos
+      for (const resource of resources) {
+        defaultRolePermissions.push({
+          role: UserRole.CONSULTOR,
+          resource,
+          action: 'read',
+          description: `Consultar ${resource}`,
+        });
+      }
 
       // Crear permisos en la BD
       for (const permissionData of defaultRolePermissions) {
