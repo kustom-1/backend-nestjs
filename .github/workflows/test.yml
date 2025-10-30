@@ -12,6 +12,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create .env file
+        if: secrets.DOT_ENV
+        run: echo "${{ secrets.DOT_ENV }}" > .env
+
+      - name: Start database services
+        run: docker-compose up -d --wait postgres mongo
+
       - name: Set up pnpm
         uses: pnpm/action-setup@v3
         with:
@@ -28,3 +35,7 @@ jobs:
 
       - name: Run tests
         run: pnpm run test:unit:cov
+
+      - name: Stop database services
+        if: always()
+        run: docker-compose down
