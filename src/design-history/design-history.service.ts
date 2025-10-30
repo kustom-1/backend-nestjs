@@ -9,7 +9,7 @@ import { UpdateDesignHistoryDto } from './dto/update-design-history.dto';
 export class DesignHistoryService implements OnModuleInit {
   private repo: Repository<DesignHistory>;
 
-  constructor(private storageService: StorageService) {}
+  constructor(private storageService: StorageService) { }
 
   async onModuleInit() {
     await this.storageService.connect();
@@ -39,6 +39,7 @@ export class DesignHistoryService implements OnModuleInit {
       const saved = await this.repo.save(entity as unknown as DesignHistory);
       return saved as DesignHistory;
     } catch (error) {
+      console.error('Error creating design history:', error);
       throw new InternalServerErrorException('Error creating design history');
     }
   }

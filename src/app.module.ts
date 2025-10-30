@@ -1,6 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { StorageModule } from './storage/storage.module';
@@ -18,11 +19,24 @@ import { AddressesModule } from './addresses/addresses.module';
 import { OrdersModule } from './orders/orders.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { DesignHistoryModule } from './design-history/design-history.module';
+import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './common/LoggerMiddleware';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    // Conexión a PostgreSQL con TypeORM
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT) || 5432,
+      username: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASS || 'postgres',
+      database: process.env.DB_NAME || 'app_db',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // SOLO para desarrollo, desactivar en producción
+      logging: false,
+    }),
     // Conexión a MongoDB para auditoría
     MongooseModule.forRoot(
       process.env.MONGODB_URI || 'mongodb://localhost:27017//myapp',
@@ -32,6 +46,7 @@ import { LoggerMiddleware } from './common/LoggerMiddleware';
         w: 'majority',
       },
     ),
+    DatabaseModule,
     StorageModule,
     UsersModule,
     AuthModule,

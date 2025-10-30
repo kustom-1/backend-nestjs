@@ -9,7 +9,7 @@ import { UpdateClothDto } from './dto/update-cloth.dto';
 export class ClothsService implements OnModuleInit {
   private repo: Repository<Cloth>;
 
-  constructor(private storageService: StorageService) {}
+  constructor(private storageService: StorageService) { }
 
   async onModuleInit() {
     await this.storageService.connect();
@@ -34,9 +34,10 @@ export class ClothsService implements OnModuleInit {
         category: data.category ? { id: data.category } : null,
       };
       const cloth = this.repo.create(toSave);
-  const saved = await this.repo.save(cloth as unknown as Cloth);
+      const saved = await this.repo.save(cloth as unknown as Cloth);
       return saved as Cloth;
     } catch (error) {
+      console.error('Error creating cloth:', error);
       throw new InternalServerErrorException('Error creating cloth');
     }
   }

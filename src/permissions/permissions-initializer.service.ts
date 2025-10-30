@@ -5,7 +5,7 @@ import { UserRole } from '../users/users.entity';
 
 @Injectable()
 export class PermissionsInitializerService implements OnApplicationBootstrap {
-  constructor(private storageService: StorageService) {}
+  constructor(private storageService: StorageService) { }
 
   async onApplicationBootstrap() {
     try {
@@ -25,10 +25,10 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
           console.log('Database connection confirmed, initializing permissions...');
           return;
         }
-        
+
         // Intentar conectar si no está conectado
         await this.storageService.connect();
-        
+
         if (this.storageService.isConnected()) {
           console.log('Database connection established, initializing permissions...');
           return;
@@ -36,11 +36,11 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
       } catch (error) {
         console.log(`Database connection attempt ${i + 1}/${maxRetries} failed, retrying...`);
       }
-      
+
       // Esperar antes del siguiente intento
       await new Promise(resolve => setTimeout(resolve, delay));
     }
-    
+
     throw new Error('Failed to establish database connection for permissions initialization');
   }
 
@@ -52,7 +52,7 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
       }
 
       const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-      
+
       // Verificar si ya existen permisos
       const existingPermissions = await rolePermissionRepo.count();
       if (existingPermissions > 0) {
@@ -80,6 +80,7 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
         'transactions',
         'design_history',
         'users',
+        'role_permissions'
       ];
 
       // Actions we support from controllers: create, read, update, delete
@@ -105,7 +106,7 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
       }
 
       // AUXILIAR: permisos de gestión para la mayoría de recursos (excepto gestión de roles/users avanzados)
-      const auxiliarManaged = resources.filter(r => r !== 'users');
+      const auxiliarManaged = resources.filter(r => r !== 'users' && r !== 'role_permissions');
       for (const resource of auxiliarManaged) {
         for (const action of crudActions) {
           defaultRolePermissions.push({
@@ -154,7 +155,7 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
     conditions: Record<string, any> = {}
   ): Promise<RolePermission> {
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const rolePermission = rolePermissionRepo.create({
       role,
       resource,
@@ -171,7 +172,7 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
   // Método para obtener permisos de un rol
   async getPermissionsForRole(role: UserRole): Promise<string[]> {
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const permissions = await rolePermissionRepo.find({
       where: { role, isActive: true, effect: 'allow' }
     });
@@ -182,14 +183,14 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
   // Método para verificar si un rol tiene un permiso específico
   async roleHasPermission(role: UserRole, resource: string, action: string): Promise<boolean> {
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const permission = await rolePermissionRepo.findOne({
-      where: { 
-        role, 
-        resource, 
-        action, 
-        isActive: true, 
-        effect: 'allow' 
+      where: {
+        role,
+        resource,
+        action,
+        isActive: true,
+        effect: 'allow'
       }
     });
 

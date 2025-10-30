@@ -1,11 +1,11 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Put, 
-  Delete, 
-  Body, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
   UseGuards,
   Query
 } from '@nestjs/common';
@@ -15,17 +15,18 @@ import { StorageService } from '../storage/storage.service';
 import { RolePermission } from './role-permission.entity';
 import { UserRole } from '../users/users.entity';
 import { AbacGuard } from './guards/abac.guard';
+import { AuthGuard } from '@nestjs/passport'; // ← Importa esto
 import { RequiredPermission } from './decorators/abac.decorator';
 
 @ApiTags('Role Permissions')
 @ApiBearerAuth()
 @Controller('role-permissions')
-@UseGuards(AbacGuard)
+@UseGuards(AuthGuard('jwt'), AbacGuard)
 export class RolePermissionsController {
   constructor(
     private permissionsInitializerService: PermissionsInitializerService,
     private storageService: StorageService
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Obtener todos los permisos por rol' })
@@ -37,7 +38,7 @@ export class RolePermissionsController {
     @Query('action') action?: string
   ) {
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const where: any = { isActive: true };
     if (role) where.role = role;
     if (resource) where.resource = resource;
@@ -62,7 +63,7 @@ export class RolePermissionsController {
   async getPermissionsByRole(@Param('role') role: UserRole) {
     const permissions = await this.permissionsInitializerService.getPermissionsForRole(role);
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const detailedPermissions = await rolePermissionRepo.find({
       where: { role, isActive: true },
       order: { resource: 'ASC', action: 'ASC' }
@@ -131,7 +132,7 @@ export class RolePermissionsController {
     @Body() updateData: Partial<RolePermission>
   ) {
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const permission = await rolePermissionRepo.findOne({
       where: { id, isActive: true }
     });
@@ -159,7 +160,7 @@ export class RolePermissionsController {
   @RequiredPermission('delete', 'role_permissions')
   async deleteRolePermission(@Param('id') id: number) {
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const permission = await rolePermissionRepo.findOne({
       where: { id, isActive: true }
     });
@@ -210,7 +211,7 @@ export class RolePermissionsController {
   @RequiredPermission('read', 'role_permissions')
   async getAvailableResources() {
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const resources = await rolePermissionRepo
       .createQueryBuilder('rp')
       .select('DISTINCT rp.resource', 'resource')
@@ -229,7 +230,7 @@ export class RolePermissionsController {
   @RequiredPermission('read', 'role_permissions')
   async getAvailableActions() {
     const rolePermissionRepo = this.storageService.getRepository(RolePermission);
-    
+
     const actions = await rolePermissionRepo
       .createQueryBuilder('rp')
       .select('DISTINCT rp.action', 'action')
