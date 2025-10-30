@@ -71,4 +71,4 @@ jobs:
             # Desplegar con docker compose
             export DOCKER_IMAGE_BACKEND=${{ secrets.DOCKERHUB_USERNAME }}/backend-nestjs:${{ github.sha }}
             docker compose pull backend
-            docker compose up -d --no-deps backend
+            docker compose up -d --no-deps 
