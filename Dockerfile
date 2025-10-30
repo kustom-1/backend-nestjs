@@ -35,4 +35,4 @@ COPY --from=build /usr/src/app/tsconfig.json ./tsconfig.json
 EXPOSE 3000
 
 # Command to run seed and then start the application
-CMD ["sh", "-c", "pnpm run seed && node dist/main"]
+CMD ["sh", "-c", "pnpm run seed && pnpm run start:dev"]
