@@ -1,5 +1,4 @@
 name: Run Tests
-
 on:
   pull_request:
     branches:
@@ -12,8 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create .env file
-        if: secrets.DOT_ENV
+      - name: Create .env fil
         run: echo "${{ secrets.DOT_ENV }}" > .env
 
       - name: Start database services
