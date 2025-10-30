@@ -38,4 +38,7 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   clearMocks: true,
   restoreMocks: true,
+  moduleNameMapper: {
+    '^src/(.*)$': '<rootDir>/src/$1',
+  },
 };
