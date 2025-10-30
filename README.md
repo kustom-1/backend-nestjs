@@ -55,7 +55,7 @@ Todos con contraseña `1234`:
 - [Base de Datos](./database/README.md) - Scripts SQL, pgAdmin y datos de prueba
 - [Colección Postman](./postman/kustom-api.postman_collection.json) - 80 endpoints documentados
 - [Environment Postman](./postman//KUSTOM_API_ENV_POSTMAN.postman_environment.json) - Variables de entorno
-
+asdasd
 ## Informe de Funcionalidades de la API
 
 Este informe detalla las funcionalidades implementadas en la API, incluyendo la descripción de cada endpoint, sus parámetros y respuestas, así como la implementación de la autenticación, autorización y persistencia.
