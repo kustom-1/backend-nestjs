@@ -11,11 +11,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create .env fil
+      - name: Create .env file
         run: echo "${{ secrets.DOT_ENV }}" > .env
 
       - name: Start database services
-        run: docker-compose up -d --wait postgres mongo
+        run: docker compose up -d --wait postgres mongo
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v3
