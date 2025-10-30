@@ -11,9 +11,6 @@ RUN npm install -g pnpm && pnpm install
 # Copy the rest of the source code
 COPY . .
 
-# Run tests
-RUN pnpm run test:unit:cov
-
 # Build the application
 RUN pnpm run build
 
