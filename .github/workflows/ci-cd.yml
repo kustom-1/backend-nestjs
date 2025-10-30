@@ -54,9 +54,21 @@ jobs:
           username: ${{ secrets.VM_USER }}
           password: ${{ secrets.VM_PASSWORD }}
           script: |
-            cd /var/www/backend-nestjs || mkdir -p /var/www/backend-nestjs && cd /var/www/backend-nestjs
-            git pull origin main || git clone https://github.com/${{ github.repository }}.git .
+            # Crear directorio en home del usuario si no existe
+            mkdir -p ~/backend-nestjs
+            cd ~/backend-nestjs
+
+            # Clonar o actualizar repositorio
+            if [ -d .git ]; then
+              git pull origin main
+            else
+              git clone https://github.com/${{ github.repository }}.git .
+            fi
+
+            # Crear archivo .env
             echo "${{ secrets.DOT_ENV }}" > .env
+
+            # Desplegar con docker compose
             export DOCKER_IMAGE_BACKEND=${{ secrets.DOCKERHUB_USERNAME }}/backend-nestjs:${{ github.sha }}
             docker compose pull backend
             docker compose up -d --no-deps backend
