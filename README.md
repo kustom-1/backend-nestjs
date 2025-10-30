@@ -41,7 +41,7 @@ npm run seed
 - **MongoDB**: localhost:27017
 
 ### **Usuarios de Prueba**
-
+asd
 Todos con contraseña `1234`:
 
 | Email | Rol | Uso |
