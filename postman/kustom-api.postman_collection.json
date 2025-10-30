@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "af25e404-0330-44ca-a8b4-ca2d659263da",
+		"_postman_id": "bc5d0531-1183-4837-a6b1-65d15fe58c1a",
 		"name": "kustom-api",
 		"description": "Colección completa de endpoints para la API de Kustom. Incluye autenticación, gestión de usuarios, productos, diseños, carritos, órdenes, inventario y auditoría.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "47454289",
-		"_collection_link": "https://raulqode-2780319.postman.co/workspace/RaulQode's-Workspace~15adc48a-211d-4ee7-8a64-b4814953581b/collection/47454289-af25e404-0330-44ca-a8b4-ca2d659263da?action=share&source=collection_link&creator=47454289"
+		"_exporter_id": "48436637",
+		"_collection_link": "https://kustom-2509.postman.co/workspace/02144751-bf0d-424e-bcca-570e5c59c8f5/collection/48436637-bc5d0531-1183-4837-a6b1-65d15fe58c1a?action=share&source=collection_link&creator=48436637"
 	},
 	"item": [
 		{
@@ -30,7 +30,9 @@
 									"    console.log(\"Access token saved:\", jsonData.access_token);",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -39,7 +41,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"raul@admin.com\",\n  \"password\": \"1234\"\n}",
+							"raw": "{\n//   \"email\": \"maria@auxiliar.com\",\n  \"email\": \"raul@admin.com\",\n  \"password\": \"1234\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -118,7 +120,9 @@
 									"    pm.response.to.have.status(200);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -136,12 +140,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url_base_dev}}users/{{id_user}}",
+							"raw": "{{url_base_dev}}users/{{userId}}",
 							"host": [
 								"{{url_base_dev}}users"
 							],
 							"path": [
-								"{{id_user}}"
+								"{{userId}}"
 							]
 						}
 					},
@@ -185,7 +189,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-  							"raw": "{\n  \"firstName\": \"consultor\",\n  \"lastName\": \"test\",\n  \"email\": \"idempotent_user@example.com\",\n  \"isActive\": true,\n  \"password\": \"consultor123\",\n  \"role\": \"Consultor\"\n}",
+							"raw": "{\n  \"firstName\": \"consultor\",\n  \"lastName\": \"test\",\n  \"email\": \"consultor_{{$timestamp}}@example.com\",\n  \"isActive\": true,\n  \"password\": \"consultor123\",\n  \"role\": \"Consultor\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -199,33 +203,7 @@
 							]
 						}
 					},
-					"response": [],
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'users?email=idempotent_user@example.com',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('id_user', jsonData[0].id);",
-								"            pm.collectionVariables.set('id_user', jsonData[0].id);",
-								"            console.log('User already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
-							]
-						}
-					}
+					"response": []
 				},
 				{
 					"name": "Update users",
@@ -445,7 +423,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Idempotent Category\",\n  \"description\": \"Test category\"\n}",
+							"raw": "{\n  \"name\": \"Category {{$timestamp}}\",\n  \"description\": \"Test category\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -456,32 +434,6 @@
 							"raw": "{{url_base_dev}}categories",
 							"host": [
 								"{{url_base_dev}}categories"
-							]
-						}
-					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'categories?name=Idempotent Category',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('categoryId', jsonData[0].id);",
-								"            pm.collectionVariables.set('categoryId', jsonData[0].id);",
-								"            console.log('Category already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
 							]
 						}
 					},
@@ -547,7 +499,9 @@
 									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -686,7 +640,9 @@
 									"    console.log(\"newClothId saved:\", jsonData.id);",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -705,7 +661,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Idempotent Cloth\",\n  \"description\": \"Temporary test cloth\",\n  \"basePrice\": 25000,\n  \"stock\": 50,\n  \"category\": \"{{categoryId}}\",\n  \"modelUrl\": \"https://example.com/model.glb\"\n}",
+							"raw": "{\n  \"name\": \"Test Cloth {{$timestamp}}\",\n  \"description\": \"Temporary test cloth\",\n  \"basePrice\": 25000,\n  \"stock\": 50,\n  \"category\": \"{{categoryId}}\",\n  \"modelUrl\": \"https://example.com/model.glb\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -716,32 +672,6 @@
 							"raw": "{{url_base_dev}}cloths",
 							"host": [
 								"{{url_base_dev}}cloths"
-							]
-						}
-					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'cloths?name=Idempotent Cloth',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newClothId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newClothId', jsonData[0].id);",
-								"            console.log('Cloth already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
 							]
 						}
 					},
@@ -965,7 +895,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n                      \"name\": \"Idempotent Design\",\n                      \"description\": \"Temporary test design\",\n                      \"user\": \"{{userId}}\",\n                      \"cloth\": \"{{clothId}}\",\n                      \"isPublic\": true,\n  \"isActive\": true\n                    }",
+							"raw": "{\n  \"name\": \"Test Design {{$timestamp}}\",\n  \"description\": \"Temporary test design\",\n  \"user\": \"{{userId}}\",\n  \"cloth\": \"{{clothId}}\",\n  \"isPublic\": true,\n  \"isActive\": true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -979,33 +909,7 @@
 							]
 						}
 					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'designs?name=Idempotent Design',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newDesignId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newDesignId', jsonData[0].id);",
-								"            console.log('Design already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
-							]
-						}
-					},
-					"response": []				
+					"response": []
 				},
 				{
 					"name": "Put design",
@@ -1018,7 +922,9 @@
 									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1037,7 +943,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"user\": 3,\n  \"cloth\": {{clothId}},\n  \"isPublic\": false,\n  \"isActive\": true\n}",
+							"raw": "{\n  \"user\": {{userId}},\n  \"cloth\": {{clothId}},\n  \"isPublic\": false,\n  \"isActive\": true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1225,7 +1131,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"url\": \"https://via.placeholder.com/500?text=IdempotentImage\",\n  \"description\": \"Idempotent Image\",\n  \"cloth\": \"{{clothId}}\"\n}",
+							"raw": "{\n  \"url\": \"https://via.placeholder.com/500?text=Test{{$timestamp}}\",\n  \"description\": \"Test image {{$timestamp}}\",\n  \"cloth\": \"{{clothId}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1236,32 +1142,6 @@
 							"raw": "{{url_base_dev}}images",
 							"host": [
 								"{{url_base_dev}}images"
-							]
-						}
-					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'images?description=Idempotent Image',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newImageId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newImageId', jsonData[0].id);",
-								"            console.log('Image already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
 							]
 						}
 					},
@@ -1278,7 +1158,9 @@
 									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1297,7 +1179,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"url\": \"https://example.com/image-updated.jpg\",\n  \"user\": 3,\n  \"tags\": [\"updated\"],\n  \"isPublic\": false\n}",
+							"raw": "{\n  \"url\": \"https://example.com/image-updated.jpg\",\n  \"user\": {{userId}},\n  \"tags\": [\"updated\"],\n  \"isPublic\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1499,32 +1381,6 @@
 							]
 						}
 					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'carts?userId=' + pm.environment.get('userId'),",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newCartId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newCartId', jsonData[0].id);",
-								"            console.log('Cart already exists for user, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
-							]
-						}
-					},
 					"response": []
 				},
 				{
@@ -1538,7 +1394,9 @@
 									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1557,7 +1415,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"user\": 3\n}",
+							"raw": "{\n  \"user\": {{userId}}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1745,7 +1603,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"street\": \"Idempotent Street\",\n  \"city\": \"Test City\",\n  \"state\": \"Test State\",\n  \"country\": \"Colombia\",\n  \"zipCode\": \"110111\",\n  \"user\": \"{{userId}}\"\n}",
+							"raw": "{\n  \"street\": \"Test Street {{$timestamp}}\",\n  \"city\": \"Test City\",\n  \"state\": \"Test State\",\n  \"country\": \"Colombia\",\n  \"zipCode\": \"110111\",\n  \"user\": \"{{userId}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1756,32 +1614,6 @@
 							"raw": "{{url_base_dev}}addresses",
 							"host": [
 								"{{url_base_dev}}addresses"
-							]
-						}
-					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'addresses?userId=' + pm.environment.get('userId') + '&street=Idempotent Street',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newAddressId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newAddressId', jsonData[0].id);",
-								"            console.log('Address already exists for user, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
 							]
 						}
 					},
@@ -2019,32 +1851,6 @@
 							]
 						}
 					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'cart-design?cartId=' + pm.environment.get('cartId') + '&designId=' + pm.environment.get('designId'),",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newCartDesignId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newCartDesignId', jsonData[0].id);",
-								"            console.log('Cart Design already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
-							]
-						}
-					},
 					"response": []
 				},
 				{
@@ -2279,32 +2085,6 @@
 							]
 						}
 					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'custom-images?imageId=' + pm.environment.get('imageId') + '&designId=' + pm.environment.get('designId'),",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newCustomImageId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newCustomImageId', jsonData[0].id);",
-								"            console.log('Custom Image already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
-							]
-						}
-					},
 					"response": []
 				},
 				{
@@ -2506,7 +2286,9 @@
 									"    console.log(\"newDesignHistoryId saved:\", jsonData.id);",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2525,7 +2307,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"design\": \"{{designId}}\",\n  \"version\": 99,\n  \"changeDescription\": \"Idempotent Change\",\n  \"changedBy\": \"{{userId}}\"\n}",
+							"raw": "{\n  \"designId\": \"{{designId}}\",\n  \"version\": 99,\n  \"changeDescription\": \"Test change {{$timestamp}}\",\n  \"changedBy\": \"{{userId}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2536,32 +2318,6 @@
 							"raw": "{{url_base_dev}}design_history",
 							"host": [
 								"{{url_base_dev}}design_history"
-							]
-						}
-					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'design-history?designId=' + pm.environment.get('designId') + '&changeDescription=Idempotent Change',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newDesignHistoryId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newDesignHistoryId', jsonData[0].id);",
-								"            console.log('Design History already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
 							]
 						}
 					},
@@ -2799,32 +2555,6 @@
 							]
 						}
 					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'order?userId=' + pm.environment.get('userId') + '&shippingAddress=' + pm.environment.get('addressId') + '&totalAmount=50000'",
-								"    method: 'GET'",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newOrderId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newOrderId', jsonData[0].id);",
-								"            console.log('Order already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
-							]
-						}
-					},
 					"response": []
 				},
 				{
@@ -3045,7 +2775,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"cloth\": \"{{clothId}}\",\n  \"size\": \"XL\",\n  \"color\": \"Idempotent Color\",\n  \"quantity\": 25\n}",
+							"raw": "{\n  \"cloth\": \"{{clothId}}\",\n  \"size\": \"XL\",\n  \"color\": \"Test Color {{$timestamp}}\",\n  \"quantity\": 25\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3056,32 +2786,6 @@
 							"raw": "{{url_base_dev}}stocks",
 							"host": [
 								"{{url_base_dev}}stocks"
-							]
-						}
-					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'stocks?clothId=' + pm.environment.get('clothId') + '&size=XL&color=Idempotent Color',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('newStockId', jsonData[0].id);",
-								"            pm.collectionVariables.set('newStockId', jsonData[0].id);",
-								"            console.log('Stock already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
 							]
 						}
 					},
@@ -3268,84 +2972,58 @@
 					"response": []
 				},
 				{
-                    "name": "Post transaction",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "pm.test(\"Status code is 201\", function () {",
-                                    "    pm.response.to.have.status(201);",
-                                    "});",
-                                    "",
-                                    "var jsonData = pm.response.json();",
-                                    "",
-                                    "if (jsonData.id) {",
-                                    "    pm.environment.set(\"newTransactionId\", jsonData.id);",
-                                    "    pm.collectionVariables.set(\"newTransactionId\", jsonData.id);",
-                                    "    console.log(\"newTransactionId saved:\", jsonData.id);",
-                                    "}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ],
-                    "request": {
-                        "auth": {
-                            "type": "bearer",
-                            "bearer": [
-                                {
-                                    "key": "token",
-                                    "value": "{{access_token}}",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"order\": \"{{orderId}}\",\n  \"amount\": 50000,\n  \"paymentMethod\": \"credit_card\",\n  \"status\": \"completed\",\n  \"transactionId\": \"TXN-TEST-IDEMPOTENT\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{url_base_dev}}transactions",
-                            "host": [
-                                "{{url_base_dev}}transactions"
-                            ]
+					"name": "Post transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newTransactionId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newTransactionId\", jsonData.id);",
+									"    console.log(\"newTransactionId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"order\": \"{{orderId}}\",\n  \"amount\": 50000,\n  \"paymentMethod\": \"credit_card\",\n  \"status\": \"completed\",\n  \"transactionId\": \"TXN-TEST-{{$timestamp}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}transactions",
+							"host": [
+								"{{url_base_dev}}transactions"
+							]
 						}
 					},
-                    "prerequest": {
-                        "script": {
-                            "type": "text/javascript",
-                            "exec": [
-                                "pm.sendRequest({",
-                                "    url: pm.environment.get('url_base_dev') + 'transactions?transactionId=TXN-TEST-IDEMPOTENT',",
-                                "    method: 'GET',",
-                                "    header: {",
-                                "        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-                                "    }",
-                                "}, function (err, res) {",
-                                "    if (err) {",
-                                "        console.log(err);",
-                                "    } else {",
-                                "        var jsonData = res.json();",
-                                "        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-                                "            pm.environment.set('newTransactionId', jsonData[0].id);",
-                                "            pm.collectionVariables.set('newTransactionId', jsonData[0].id);",
-                                "            console.log('Transaction already exists, ID saved:', jsonData[0].id);",
-                                "            pm.request.abort(); // Skip the POST request",
-                                "        }",
-                                "    }",
-                                "});"
-                            ]
-                        }
-                    },
-                    "response": []
+					"response": []
 				},
 				{
 					"name": "Update transaction",
@@ -3709,7 +3387,9 @@
 									"    pm.response.to.have.status(200);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3727,13 +3407,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url_base_dev}}role-permissions/by-role/COORDINADOR",
+							"raw": "{{url_base_dev}}role-permissions/by-role/Coordinador",
 							"host": [
 								"{{url_base_dev}}role-permissions"
 							],
 							"path": [
 								"by-role",
-								"COORDINADOR"
+								"Coordinador"
 							]
 						}
 					},
@@ -3838,7 +3518,9 @@
 									"    console.log(\"Role Permission ID saved:\", jsonData.data.id);",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3857,7 +3539,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"role\": \"CONSULTOR\",\n  \"resource\": \"test_resource\",\n  \"action\": \"read\",\n  \"description\": \"Idempotent Permission\",\n  \"conditions\": {}\n}",
+							"raw": "{\n  \"role\": \"Consultor\",\n  \"resource\": \"test_resource\",\n  \"action\": \"read\",\n  \"description\": \"Test permission\",\n  \"conditions\": {}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3871,32 +3553,6 @@
 							]
 						}
 					},
-					"prerequest": {
-						"script": {
-							"type": "text/javascript",
-							"exec": [
-								"pm.sendRequest({",
-								"    url: pm.environment.get('url_base_dev') + 'role-permissions?role=CONSULTOR&resource=test_resource&action=read',",
-								"    method: 'GET',",
-								"    header: {",
-								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
-								"    }",
-								"}, function (err, res) {",
-								"    if (err) {",
-								"        console.log(err);",
-								"    } else {",
-								"        var jsonData = res.json();",
-								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
-								"            pm.environment.set('rolePermissionId', jsonData[0].id);",
-								"            pm.collectionVariables.set('rolePermissionId', jsonData[0].id);",
-								"            console.log('Role Permission already exists, ID saved:', jsonData[0].id);",
-								"            pm.request.abort(); // Skip the POST request",
-								"        }",
-								"    }",
-								"});"
-							]
-						}
-					},
 					"response": []
 				},
 				{
@@ -3906,11 +3562,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3929,7 +3587,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"role\": \"COORDINADOR\",\n  \"resource\": \"users\",\n  \"action\": \"read\"\n}",
+							"raw": "{\n  \"role\": \"Coordinador\",\n  \"resource\": \"users\",\n  \"action\": \"read\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3955,11 +3613,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4193,6 +3853,54 @@
 			"key": "transactionId",
 			"value": "",
 			"type": "default"
+		},
+		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "newDesignId",
+			"value": ""
+		},
+		{
+			"key": "newImageId",
+			"value": ""
+		},
+		{
+			"key": "newCartId",
+			"value": ""
+		},
+		{
+			"key": "newAddressId",
+			"value": ""
+		},
+		{
+			"key": "newCartDesignId",
+			"value": ""
+		},
+		{
+			"key": "newCustomImageId",
+			"value": ""
+		},
+		{
+			"key": "newOrderId",
+			"value": ""
+		},
+		{
+			"key": "newStockId",
+			"value": ""
+		},
+		{
+			"key": "newTransactionId",
+			"value": ""
+		},
+		{
+			"key": "newDesignHistoryId",
+			"value": ""
+		},
+		{
+			"key": "newClothId",
+			"value": ""
 		}
 	]
 }
