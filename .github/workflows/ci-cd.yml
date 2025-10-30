@@ -66,7 +66,7 @@ jobs:
             fi
 
             # Crear archivo .env
-            echo "${{ secrets.DOT_ENV }}" > .env
+            echo "${{ secrets.ENV_PROD }}" > .env
 
             # Desplegar con docker compose
             export DOCKER_IMAGE_BACKEND=${{ secrets.DOCKERHUB_USERNAME }}/backend-nestjs:${{ github.sha }}
