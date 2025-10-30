@@ -1,0 +1,4198 @@
+{
+	"info": {
+		"_postman_id": "af25e404-0330-44ca-a8b4-ca2d659263da",
+		"name": "kustom-api",
+		"description": "Colección completa de endpoints para la API de Kustom. Incluye autenticación, gestión de usuarios, productos, diseños, carritos, órdenes, inventario y auditoría.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47454289",
+		"_collection_link": "https://raulqode-2780319.postman.co/workspace/RaulQode's-Workspace~15adc48a-211d-4ee7-8a64-b4814953581b/collection/47454289-af25e404-0330-44ca-a8b4-ca2d659263da?action=share&source=collection_link&creator=47454289"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Post auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.access_token) {",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"    console.log(\"Access token saved:\", jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"raul@admin.com\",\n  \"password\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}auth",
+							"host": [
+								"{{url_base_dev}}auth"
+							]
+						},
+						"description": "Endpoint de autenticación. Retorna un access_token JWT que debe ser usado en los demás endpoints."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"userId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"userId\", jsonData[0].id);",
+									"    console.log(\"userId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}users",
+							"host": [
+								"{{url_base_dev}}users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}users/{{id_user}}",
+							"host": [
+								"{{url_base_dev}}users"
+							],
+							"path": [
+								"{{id_user}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"id_user\", jsonData.id);",
+									"    pm.environment.set(\"id_user\", jsonData.id);",
+									"    console.log(\"User ID saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+  							"raw": "{\n  \"firstName\": \"consultor\",\n  \"lastName\": \"test\",\n  \"email\": \"idempotent_user@example.com\",\n  \"isActive\": true,\n  \"password\": \"consultor123\",\n  \"role\": \"Consultor\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}users",
+							"host": [
+								"{{url_base_dev}}users"
+							]
+						}
+					},
+					"response": [],
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'users?email=idempotent_user@example.com',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('id_user', jsonData[0].id);",
+								"            pm.collectionVariables.set('id_user', jsonData[0].id);",
+								"            console.log('User already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"firstName\": \"Consultor Updated\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}users/{{id_user}}",
+							"host": [
+								"{{url_base_dev}}users"
+							],
+							"path": [
+								"{{id_user}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}users/{{id_user}}",
+							"host": [
+								"{{url_base_dev}}users"
+							],
+							"path": [
+								"{{id_user}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"categoryId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"categoryId\", jsonData[0].id);",
+									"    console.log(\"categoryId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}categories",
+							"host": [
+								"{{url_base_dev}}categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get category by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}categories/{{categoryId}}",
+							"host": [
+								"{{url_base_dev}}categories"
+							],
+							"path": [
+								"{{categoryId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"categoryId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"categoryId\", jsonData.id);",
+									"    console.log(\"Category ID saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Idempotent Category\",\n  \"description\": \"Test category\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}categories",
+							"host": [
+								"{{url_base_dev}}categories"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'categories?name=Idempotent Category',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('categoryId', jsonData[0].id);",
+								"            pm.collectionVariables.set('categoryId', jsonData[0].id);",
+								"            console.log('Category already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Category Updated\",\n  \"description\": \"Updated description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}categories/{{categoryId}}",
+							"host": [
+								"{{url_base_dev}}categories"
+							],
+							"path": [
+								"{{categoryId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}categories/{{categoryId}}",
+							"host": [
+								"{{url_base_dev}}categories"
+							],
+							"path": [
+								"{{categoryId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cloths",
+			"item": [
+				{
+					"name": "Get cloths",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"clothId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"clothId\", jsonData[0].id);",
+									"    console.log(\"clothId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}cloths",
+							"host": [
+								"{{url_base_dev}}cloths"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get cloth by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}cloths/{{clothId}}",
+							"host": [
+								"{{url_base_dev}}cloths"
+							],
+							"path": [
+								"{{clothId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post cloths",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newClothId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newClothId\", jsonData.id);",
+									"    console.log(\"newClothId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Idempotent Cloth\",\n  \"description\": \"Temporary test cloth\",\n  \"basePrice\": 25000,\n  \"stock\": 50,\n  \"category\": \"{{categoryId}}\",\n  \"modelUrl\": \"https://example.com/model.glb\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}cloths",
+							"host": [
+								"{{url_base_dev}}cloths"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'cloths?name=Idempotent Cloth',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newClothId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newClothId', jsonData[0].id);",
+								"            console.log('Cloth already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update cloths",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"basePrice\": 39.99,\n  \"stock\": 150,\n  \"description\": \"Updated cloth description\",\n  \"category\": {{categoryId}},\n  \"modelUrl\": \"https://example.com/model-updated.glb\",\n  \"name\": \"Updated Cloth\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}cloths/{{newClothId}}",
+							"host": [
+								"{{url_base_dev}}cloths"
+							],
+							"path": [
+								"{{newClothId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete cloths",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}cloths/{{newClothId}}",
+							"host": [
+								"{{url_base_dev}}cloths"
+							],
+							"path": [
+								"{{newClothId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Designs",
+			"item": [
+				{
+					"name": "Get designs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"designId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"designId\", jsonData[0].id);",
+									"    console.log(\"designId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}designs",
+							"host": [
+								"{{url_base_dev}}designs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get design by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}designs/{{designId}}",
+							"host": [
+								"{{url_base_dev}}designs"
+							],
+							"path": [
+								"{{designId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post designs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newDesignId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newDesignId\", jsonData.id);",
+									"    console.log(\"newDesignId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n                      \"name\": \"Idempotent Design\",\n                      \"description\": \"Temporary test design\",\n                      \"user\": \"{{userId}}\",\n                      \"cloth\": \"{{clothId}}\",\n                      \"isPublic\": true,\n  \"isActive\": true\n                    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}designs",
+							"host": [
+								"{{url_base_dev}}designs"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'designs?name=Idempotent Design',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newDesignId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newDesignId', jsonData[0].id);",
+								"            console.log('Design already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []				
+				},
+				{
+					"name": "Put design",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": 3,\n  \"cloth\": {{clothId}},\n  \"isPublic\": false,\n  \"isActive\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}designs/{{newDesignId}}",
+							"host": [
+								"{{url_base_dev}}designs"
+							],
+							"path": [
+								"{{newDesignId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete designs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}designs/{{newDesignId}}",
+							"host": [
+								"{{url_base_dev}}designs"
+							],
+							"path": [
+								"{{newDesignId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Images",
+			"item": [
+				{
+					"name": "Get images",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"imageId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"imageId\", jsonData[0].id);",
+									"    console.log(\"imageId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}images",
+							"host": [
+								"{{url_base_dev}}images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get image by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}images/{{imageId}}",
+							"host": [
+								"{{url_base_dev}}images"
+							],
+							"path": [
+								"{{imageId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post images",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newImageId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newImageId\", jsonData.id);",
+									"    console.log(\"newImageId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"url\": \"https://via.placeholder.com/500?text=IdempotentImage\",\n  \"description\": \"Idempotent Image\",\n  \"cloth\": \"{{clothId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}images",
+							"host": [
+								"{{url_base_dev}}images"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'images?description=Idempotent Image',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newImageId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newImageId', jsonData[0].id);",
+								"            console.log('Image already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update images",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"url\": \"https://example.com/image-updated.jpg\",\n  \"user\": 3,\n  \"tags\": [\"updated\"],\n  \"isPublic\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}images/{{newImageId}}",
+							"host": [
+								"{{url_base_dev}}images"
+							],
+							"path": [
+								"{{newImageId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete images",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}images/{{newImageId}}",
+							"host": [
+								"{{url_base_dev}}images"
+							],
+							"path": [
+								"{{newImageId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Carts",
+			"item": [
+				{
+					"name": "Get carts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"cartId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"cartId\", jsonData[0].id);",
+									"    console.log(\"cartId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}carts",
+							"host": [
+								"{{url_base_dev}}carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get cart by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}carts/{{cartId}}",
+							"host": [
+								"{{url_base_dev}}carts"
+							],
+							"path": [
+								"{{cartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post carts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newCartId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newCartId\", jsonData.id);",
+									"    console.log(\"newCartId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": \"{{userId}}\",\n  \"totalAmount\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}carts",
+							"host": [
+								"{{url_base_dev}}carts"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'carts?userId=' + pm.environment.get('userId'),",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newCartId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newCartId', jsonData[0].id);",
+								"            console.log('Cart already exists for user, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}carts/{{newCartId}}",
+							"host": [
+								"{{url_base_dev}}carts"
+							],
+							"path": [
+								"{{newCartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}carts/{{newCartId}}",
+							"host": [
+								"{{url_base_dev}}carts"
+							],
+							"path": [
+								"{{newCartId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Addresses",
+			"item": [
+				{
+					"name": "Get addresses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"addressId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"addressId\", jsonData[0].id);",
+									"    console.log(\"addressId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}addresses",
+							"host": [
+								"{{url_base_dev}}addresses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get address by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}addresses/{{addressId}}",
+							"host": [
+								"{{url_base_dev}}addresses"
+							],
+							"path": [
+								"{{addressId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post address",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newAddressId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newAddressId\", jsonData.id);",
+									"    console.log(\"newAddressId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"street\": \"Idempotent Street\",\n  \"city\": \"Test City\",\n  \"state\": \"Test State\",\n  \"country\": \"Colombia\",\n  \"zipCode\": \"110111\",\n  \"user\": \"{{userId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}addresses",
+							"host": [
+								"{{url_base_dev}}addresses"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'addresses?userId=' + pm.environment.get('userId') + '&street=Idempotent Street',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newAddressId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newAddressId', jsonData[0].id);",
+								"            console.log('Address already exists for user, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update address",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"street\": \"Updated Street 456\",\n  \"city\": \"Updated City\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}addresses/{{newAddressId}}",
+							"host": [
+								"{{url_base_dev}}addresses"
+							],
+							"path": [
+								"{{newAddressId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete address",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}addresses/{{newAddressId}}",
+							"host": [
+								"{{url_base_dev}}addresses"
+							],
+							"path": [
+								"{{newAddressId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart Design",
+			"item": [
+				{
+					"name": "Get cart designs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"cartDesignId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"cartDesignId\", jsonData[0].id);",
+									"    console.log(\"cartDesignId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}cart-design",
+							"host": [
+								"{{url_base_dev}}cart-design"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get cart design by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}cart-design/{{cartDesignId}}",
+							"host": [
+								"{{url_base_dev}}cart-design"
+							],
+							"path": [
+								"{{cartDesignId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post cart design",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newCartDesignId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newCartDesignId\", jsonData.id);",
+									"    console.log(\"newCartDesignId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cart\": \"{{cartId}}\",\n  \"design\": \"{{designId}}\",\n  \"quantity\": 1,\n  \"priceAtPurchase\": 15000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}cart-design",
+							"host": [
+								"{{url_base_dev}}cart-design"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'cart-design?cartId=' + pm.environment.get('cartId') + '&designId=' + pm.environment.get('designId'),",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newCartDesignId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newCartDesignId', jsonData[0].id);",
+								"            console.log('Cart Design already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update cart design",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 5,\n  \"subtotal\": 149.95\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}cart-design/{{newCartDesignId}}",
+							"host": [
+								"{{url_base_dev}}cart-design"
+							],
+							"path": [
+								"{{newCartDesignId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete cart design",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}cart-design/{{newCartDesignId}}",
+							"host": [
+								"{{url_base_dev}}cart-design"
+							],
+							"path": [
+								"{{newCartDesignId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Custom Images",
+			"item": [
+				{
+					"name": "Get custom images",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"customImageId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"customImageId\", jsonData[0].id);",
+									"    console.log(\"customImageId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}custom-images",
+							"host": [
+								"{{url_base_dev}}custom-images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get custom image by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}custom-images/{{customImageId}}",
+							"host": [
+								"{{url_base_dev}}custom-images"
+							],
+							"path": [
+								"{{customImageId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post custom image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newCustomImageId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newCustomImageId\", jsonData.id);",
+									"    console.log(\"newCustomImageId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"image\": \"{{imageId}}\",\n  \"design\": \"{{designId}}\",\n  \"config\": {\n    \"positionX\": 50,\n    \"positionY\": 50,\n    \"width\": 100,\n    \"height\": 100,\n    \"rotation\": 0\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}custom-images",
+							"host": [
+								"{{url_base_dev}}custom-images"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'custom-images?imageId=' + pm.environment.get('imageId') + '&designId=' + pm.environment.get('designId'),",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newCustomImageId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newCustomImageId', jsonData[0].id);",
+								"            console.log('Custom Image already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update custom image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"config\": {\n    \"position\": {\"x\": 150, \"y\": 250},\n    \"scale\": 2.0,\n    \"rotation\": 90\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}custom-images/{{newCustomImageId}}",
+							"host": [
+								"{{url_base_dev}}custom-images"
+							],
+							"path": [
+								"{{newCustomImageId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete custom image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}custom-images/{{newCustomImageId}}",
+							"host": [
+								"{{url_base_dev}}custom-images"
+							],
+							"path": [
+								"{{newCustomImageId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Design History",
+			"item": [
+				{
+					"name": "Get design history",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"designHistoryId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"designHistoryId\", jsonData[0].id);",
+									"    console.log(\"designHistoryId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}design_history",
+							"host": [
+								"{{url_base_dev}}design_history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get design history by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}design_history/{{designHistoryId}}",
+							"host": [
+								"{{url_base_dev}}design_history"
+							],
+							"path": [
+								"{{designHistoryId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post design history",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newDesignHistoryId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newDesignHistoryId\", jsonData.id);",
+									"    console.log(\"newDesignHistoryId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"design\": \"{{designId}}\",\n  \"version\": 99,\n  \"changeDescription\": \"Idempotent Change\",\n  \"changedBy\": \"{{userId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}design_history",
+							"host": [
+								"{{url_base_dev}}design_history"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'design-history?designId=' + pm.environment.get('designId') + '&changeDescription=Idempotent Change',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newDesignHistoryId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newDesignHistoryId', jsonData[0].id);",
+								"            console.log('Design History already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update design history",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"version\": 2,\n  \"snapshot\": {\"config\": \"updated\"}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}design_history/{{newDesignHistoryId}}",
+							"host": [
+								"{{url_base_dev}}design_history"
+							],
+							"path": [
+								"{{newDesignHistoryId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete design history",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}design_history/{{newDesignHistoryId}}",
+							"host": [
+								"{{url_base_dev}}design_history"
+							],
+							"path": [
+								"{{newDesignHistoryId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Get orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"orderId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"orderId\", jsonData[0].id);",
+									"    console.log(\"orderId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}order",
+							"host": [
+								"{{url_base_dev}}order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get order by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}order/{{orderId}}",
+							"host": [
+								"{{url_base_dev}}order"
+							],
+							"path": [
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newOrderId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newOrderId\", jsonData.id);",
+									"    console.log(\"newOrderId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": \"{{userId}}\",\n  \"totalAmount\": 50000,\n  \"status\": \"pending\",\n  \"shippingAddress\": \"{{addressId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}order",
+							"host": [
+								"{{url_base_dev}}order"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'order?userId=' + pm.environment.get('userId') + '&shippingAddress=' + pm.environment.get('addressId') + '&totalAmount=50000'",
+								"    method: 'GET'",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newOrderId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newOrderId', jsonData[0].id);",
+								"            console.log('Order already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"completed\",\n  \"quantity\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}order/{{newOrderId}}",
+							"host": [
+								"{{url_base_dev}}order"
+							],
+							"path": [
+								"{{newOrderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}order/{{newOrderId}}",
+							"host": [
+								"{{url_base_dev}}order"
+							],
+							"path": [
+								"{{newOrderId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stocks",
+			"item": [
+				{
+					"name": "Get stocks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"stockId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"stockId\", jsonData[0].id);",
+									"    console.log(\"stockId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}stocks",
+							"host": [
+								"{{url_base_dev}}stocks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get stock by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}stocks/{{stockId}}",
+							"host": [
+								"{{url_base_dev}}stocks"
+							],
+							"path": [
+								"{{stockId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post stock",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.id) {",
+									"    pm.environment.set(\"newStockId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"newStockId\", jsonData.id);",
+									"    console.log(\"newStockId saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cloth\": \"{{clothId}}\",\n  \"size\": \"XL\",\n  \"color\": \"Idempotent Color\",\n  \"quantity\": 25\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}stocks",
+							"host": [
+								"{{url_base_dev}}stocks"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'stocks?clothId=' + pm.environment.get('clothId') + '&size=XL&color=Idempotent Color',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('newStockId', jsonData[0].id);",
+								"            pm.collectionVariables.set('newStockId', jsonData[0].id);",
+								"            console.log('Stock already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update stock",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"stock\": 75,\n  \"color\": \"red\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}stocks/{{newStockId}}",
+							"host": [
+								"{{url_base_dev}}stocks"
+							],
+							"path": [
+								"{{newStockId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete stock",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}stocks/{{newStockId}}",
+							"host": [
+								"{{url_base_dev}}stocks"
+							],
+							"path": [
+								"{{newStockId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Get transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Capture ID from first item in array",
+									"if (Array.isArray(jsonData) && jsonData.length > 0 && jsonData[0].id) {",
+									"    pm.environment.set(\"transactionId\", jsonData[0].id);",
+									"    pm.collectionVariables.set(\"transactionId\", jsonData[0].id);",
+									"    console.log(\"transactionId from existing data:\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}transactions",
+							"host": [
+								"{{url_base_dev}}transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get transaction by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}transactions/{{transactionId}}",
+							"host": [
+								"{{url_base_dev}}transactions"
+							],
+							"path": [
+								"{{transactionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+                    "name": "Post transaction",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 201\", function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "var jsonData = pm.response.json();",
+                                    "",
+                                    "if (jsonData.id) {",
+                                    "    pm.environment.set(\"newTransactionId\", jsonData.id);",
+                                    "    pm.collectionVariables.set(\"newTransactionId\", jsonData.id);",
+                                    "    console.log(\"newTransactionId saved:\", jsonData.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"order\": \"{{orderId}}\",\n  \"amount\": 50000,\n  \"paymentMethod\": \"credit_card\",\n  \"status\": \"completed\",\n  \"transactionId\": \"TXN-TEST-IDEMPOTENT\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_base_dev}}transactions",
+                            "host": [
+                                "{{url_base_dev}}transactions"
+                            ]
+						}
+					},
+                    "prerequest": {
+                        "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                                "pm.sendRequest({",
+                                "    url: pm.environment.get('url_base_dev') + 'transactions?transactionId=TXN-TEST-IDEMPOTENT',",
+                                "    method: 'GET',",
+                                "    header: {",
+                                "        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+                                "    }",
+                                "}, function (err, res) {",
+                                "    if (err) {",
+                                "        console.log(err);",
+                                "    } else {",
+                                "        var jsonData = res.json();",
+                                "        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+                                "            pm.environment.set('newTransactionId', jsonData[0].id);",
+                                "            pm.collectionVariables.set('newTransactionId', jsonData[0].id);",
+                                "            console.log('Transaction already exists, ID saved:', jsonData[0].id);",
+                                "            pm.request.abort(); // Skip the POST request",
+                                "        }",
+                                "    }",
+                                "});"
+                            ]
+                        }
+                    },
+                    "response": []
+				},
+				{
+					"name": "Update transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"refunded\",\n  \"amount\": 99.99\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}transactions/{{newTransactionId}}",
+							"host": [
+								"{{url_base_dev}}transactions"
+							],
+							"path": [
+								"{{newTransactionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}transactions/{{newTransactionId}}",
+							"host": [
+								"{{url_base_dev}}transactions"
+							],
+							"path": [
+								"{{newTransactionId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Audit",
+			"item": [
+				{
+					"name": "Get audit logs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}audit/logs",
+							"host": [
+								"{{url_base_dev}}audit"
+							],
+							"path": [
+								"logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user activity",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}audit/user/3?limit=10",
+							"host": [
+								"{{url_base_dev}}audit"
+							],
+							"path": [
+								"user",
+								"3"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get audit stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}audit/stats",
+							"host": [
+								"{{url_base_dev}}audit"
+							],
+							"path": [
+								"stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get resource history",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}audit/resource/users/{{id_user}}",
+							"host": [
+								"{{url_base_dev}}audit"
+							],
+							"path": [
+								"resource",
+								"users",
+								"{{id_user}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clean old logs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}audit/clean?days=90",
+							"host": [
+								"{{url_base_dev}}audit"
+							],
+							"path": [
+								"clean"
+							],
+							"query": [
+								{
+									"key": "days",
+									"value": "90"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Role Permissions",
+			"item": [
+				{
+					"name": "Get all role permissions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get permissions by role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions/by-role/COORDINADOR",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							],
+							"path": [
+								"by-role",
+								"COORDINADOR"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get available resources",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions/resources",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							],
+							"path": [
+								"resources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get available actions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions/actions",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							],
+							"path": [
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post role permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.environment.set(\"rolePermissionId\", jsonData.data.id);",
+									"    pm.collectionVariables.set(\"rolePermissionId\", jsonData.data.id);",
+									"    console.log(\"Role Permission ID saved:\", jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"CONSULTOR\",\n  \"resource\": \"test_resource\",\n  \"action\": \"read\",\n  \"description\": \"Idempotent Permission\",\n  \"conditions\": {}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							]
+						}
+					},
+					"prerequest": {
+						"script": {
+							"type": "text/javascript",
+							"exec": [
+								"pm.sendRequest({",
+								"    url: pm.environment.get('url_base_dev') + 'role-permissions?role=CONSULTOR&resource=test_resource&action=read',",
+								"    method: 'GET',",
+								"    header: {",
+								"        'Authorization': 'Bearer ' + pm.environment.get('access_token')",
+								"    }",
+								"}, function (err, res) {",
+								"    if (err) {",
+								"        console.log(err);",
+								"    } else {",
+								"        var jsonData = res.json();",
+								"        if (res.code === 200 && jsonData.length > 0 && jsonData[0].id) {",
+								"            pm.environment.set('rolePermissionId', jsonData[0].id);",
+								"            pm.collectionVariables.set('rolePermissionId', jsonData[0].id);",
+								"            console.log('Role Permission already exists, ID saved:', jsonData[0].id);",
+								"            pm.request.abort(); // Skip the POST request",
+								"        }",
+								"    }",
+								"});"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check role permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"COORDINADOR\",\n  \"resource\": \"users\",\n  \"action\": \"read\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions/check",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							],
+							"path": [
+								"check"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Initialize role permissions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions/initialize",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							],
+							"path": [
+								"initialize"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update role permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Updated permission description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions/{{rolePermissionId}}",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							],
+							"path": [
+								"{{rolePermissionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete role permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_base_dev}}role-permissions/{{rolePermissionId}}",
+							"host": [
+								"{{url_base_dev}}role-permissions"
+							],
+							"path": [
+								"{{rolePermissionId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "https://postman-rest-api-learner.glitch.me/"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "id_user",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "categoryId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "clothId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "designId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "imageId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "cartId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "addressId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "cartDesignId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "customImageId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "designHistoryId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "rolePermissionId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "stockId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "transactionId",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
