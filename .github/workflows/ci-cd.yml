@@ -57,5 +57,5 @@ jobs:
             cd /var/www/backend-nestjs # Asegúrate de que esta ruta exista en tu VM
             echo "${{ secrets.DOT_ENV }}" > .env
             export DOCKER_IMAGE_BACKEND=${{ secrets.DOCKERHUB_USERNAME }}/backend-nestjs:${{ github.sha }}
-            docker-compose pull backend
-            docker-compose up -d --no-deps backend
+            docker compose pull backend
+            docker compose up -d --no-deps backend
