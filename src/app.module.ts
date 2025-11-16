@@ -19,6 +19,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { DesignHistoryModule } from './design-history/design-history.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './common/LoggerMiddleware';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { LoggerMiddleware } from './common/LoggerMiddleware';
       logging: false,
     }),
     DatabaseModule,
+    HealthModule,
     StorageModule,
     UsersModule,
     AuthModule,
