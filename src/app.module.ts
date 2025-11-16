@@ -1,7 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { StorageModule } from './storage/storage.module';
@@ -23,7 +22,6 @@ import { LoggerMiddleware } from './common/LoggerMiddleware';
 import { HealthModule } from './health/health.module';
 
 @Module({
-  controllers: [AppController],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     // Conexión a PostgreSQL con TypeORM
