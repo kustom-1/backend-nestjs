@@ -21,24 +21,6 @@ services:
       timeout: 5s
       retries: 5
 
-  mongo:
-    image: mongo:6
-    container_name: kustom_mongo
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_DATABASE: ${MONGO_DB:-kustom_audit}
-    volumes:
-      - mongo_data:/data/db
-    ports:
-      - '${MONGO_PORT:-27017}:27017'
-    networks:
-      - kustom_network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: kustom_pgadmin
