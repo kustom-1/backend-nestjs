@@ -2,8 +2,8 @@ import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nes
 import { UsersService } from './users.service';
 import { User } from './users.entity';
 import { CreateUserDto } from './dto/users-create.dto';
-import { AbacGuard } from 'src/permissions/guards/abac.guard';
-import { Action, Resource } from 'src/permissions/decorators/abac.decorator';
+import { AbacGuard } from '../permissions/guards/abac.guard';
+import { Action, Resource } from '../permissions/decorators/abac.decorator';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')

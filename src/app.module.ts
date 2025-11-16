@@ -1,12 +1,11 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { StorageModule } from './storage/storage.module';
 import { PermissionsModule } from './permissions/permissions.module';
-import { AuditModule } from './audit/audit.module';
 import { ClothsModule } from './cloths/cloths.module';
 import { CategoriesModule } from './categories/categories.module';
 import { DesignsModule } from './designs/designs.module';
@@ -23,6 +22,7 @@ import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './common/LoggerMiddleware';
 
 @Module({
+  controllers: [AppController],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     // Conexión a PostgreSQL con TypeORM
@@ -37,21 +37,12 @@ import { LoggerMiddleware } from './common/LoggerMiddleware';
       synchronize: true, // SOLO para desarrollo, desactivar en producción
       logging: false,
     }),
-    // Conexión a MongoDB para auditoría
-    MongooseModule.forRoot(
-      process.env.MONGODB_URI || 'mongodb://localhost:27017//myapp',
-      {
-        // Opciones de conexión
-        retryWrites: true,
-        w: 'majority',
-      },
-    ),
+
     DatabaseModule,
     StorageModule,
     UsersModule,
     AuthModule,
     PermissionsModule,
-    AuditModule,
     ClothsModule,
     CategoriesModule,
     DesignsModule,
