@@ -20,6 +20,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { DesignHistoryModule } from './design-history/design-history.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './common/LoggerMiddleware';
+import { HealthModule } from './health/health.module';
 
 @Module({
   controllers: [AppController],
@@ -37,8 +38,8 @@ import { LoggerMiddleware } from './common/LoggerMiddleware';
       synchronize: true, // SOLO para desarrollo, desactivar en producción
       logging: false,
     }),
-
     DatabaseModule,
+    HealthModule,
     StorageModule,
     UsersModule,
     AuthModule,
