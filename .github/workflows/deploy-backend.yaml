@@ -74,7 +74,7 @@ jobs:
 
       # Set up dependencies
       - name: Install dependencies
-        working-directory: backend
+        
         run: |
           echo "Installing dependencies..."
           npm ci
@@ -82,7 +82,6 @@ jobs:
 
       # Build the application
       - name: Build application
-        working-directory: backend
         run: |
           echo "Building NestJS application..."
           npm run build
@@ -92,7 +91,6 @@ jobs:
           
       # Create artifact
       - name: Prepare deployment artifact
-        working-directory: backend
         run: |
           echo "Preparing deployment artifact..."
 
@@ -143,7 +141,6 @@ jobs:
 
       # Upload artifact to S3
       - name: Upload artifact to S3
-        working-directory: backend
         env:
           ENVIRONMENT: ${{ steps.env.outputs.environment }}
           ACCOUNT_ID: ${{ steps.aws.outputs.account_id }}
