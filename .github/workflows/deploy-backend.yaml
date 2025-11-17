@@ -1,4 +1,4 @@
-name: Deploy Backend to AWS
+name: Deploy Nest.js App
 
 on:
   push:
@@ -20,244 +20,30 @@ on:
         required: false
         type: string
 
-env:
-  AWS_REGION: us-east-1
-  NODE_VERSION: '20.x'
-  APP_NAME: nestjs-app
-
 jobs:
-  build-and-deploy:
-    name: Build and Deploy Backend
-    runs-on: ubuntu-latest
-
+  deploy:
+    name: Deploy Nest.js Application
     permissions:
       id-token: write
       contents: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-        # Determine environment and version tag
-
-      - name: Determine environment
-        id: env
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            ENVIRONMENT="${{ inputs.environment }}"
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            ENVIRONMENT="prod"
-          else
-            ENVIRONMENT="dev"
-          fi
-
-          echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
-          echo "Deploying to environment: ${ENVIRONMENT}"
-
-          # Determine version tag
-          if [ -n "${{ inputs.version_tag }}" ]; then
-            VERSION_TAG="${{ inputs.version_tag }}"
-          else
-            VERSION_TAG="latest"
-          fi
-
-          echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
-          echo "Version tag: ${VERSION_TAG}"
-
-      # Set up Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: ./package-lock.json
-
-      # Set up dependencies
-      - name: Install dependencies
-        
-        run: |
-          echo "Installing dependencies..."
-          npm ci
-
-
-      # Build the application
-      - name: Build application
-        run: |
-          echo "Building NestJS application..."
-          npm run build
-
-          echo "Build completed successfully!"
-          ls -la dist/
-          
-      # Create artifact
-      - name: Prepare deployment artifact
-        run: |
-          echo "Preparing deployment artifact..."
-
-          mkdir -p deployment
-          cp -r dist deployment/
-          cp package.json deployment/
-          cp package-lock.json deployment/
-
-          # Create artifact metadata
-          cat > deployment/ARTIFACT_INFO.txt <<EOF
-          Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          Git Commit: ${{ github.sha }}
-          Git Branch: ${{ github.ref_name }}
-          Environment: ${{ steps.env.outputs.environment }}
-          Version: ${{ steps.env.outputs.version_tag }}
-          Workflow: ${{ github.workflow }}
-          Run Number: ${{ github.run_number }}
-          EOF
-
-          # Create the ZIP file and exclude unnecessary files
-          cd deployment
-          zip -r ../app.zip . -x "*.git*" "node_modules/*"
-          cd ..
-
-          # Show artifact info
-          echo "Artifact created:"
-          ls -lh app.zip
-          unzip -l app.zip | head -20
-
-      # Configure AWS credentials
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      # ==========================================
-      # 9. GET AWS ACCOUNT ID
-      # ==========================================
-      - name: Get AWS Account ID
-        id: aws
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          echo "account_id=${ACCOUNT_ID}" >> $GITHUB_OUTPUT
-          echo "AWS Account ID: ${ACCOUNT_ID}"
-
-      # Upload artifact to S3
-      - name: Upload artifact to S3
-        env:
-          ENVIRONMENT: ${{ steps.env.outputs.environment }}
-          ACCOUNT_ID: ${{ steps.aws.outputs.account_id }}
-          VERSION_TAG: ${{ steps.env.outputs.version_tag }}
-        run: |
-          S3_BUCKET="artifacts-${ENVIRONMENT}-${ACCOUNT_ID}"
-
-          echo "Uploading to S3 bucket: ${S3_BUCKET}"
-
-          # Upload to versioned path
-          if [ "${VERSION_TAG}" != "latest" ]; then
-            S3_VERSION_PATH="s3://${S3_BUCKET}/backend/${VERSION_TAG}/app.zip"
-            echo "Uploading versioned artifact to: ${S3_VERSION_PATH}"
-            aws s3 cp app.zip "${S3_VERSION_PATH}" \
-              --metadata "git-commit=${{ github.sha }},build-date=$(date -u +%Y-%m-%d),version=${VERSION_TAG}"
-          fi
-
-          # Always upload to latest
-          S3_LATEST_PATH="s3://${S3_BUCKET}/backend/latest/app.zip"
-          echo "Uploading to latest: ${S3_LATEST_PATH}"
-          aws s3 cp app.zip "${S3_LATEST_PATH}" \
-            --metadata "git-commit=${{ github.sha }},build-date=$(date -u +%Y-%m-%d),version=${VERSION_TAG}"
-
-          echo "✓ Artifact uploaded successfully!"
-
-          # Verify upload
-          echo "Verifying upload..."
-          aws s3 ls "${S3_LATEST_PATH}"
-
-      # Trigger ASG instance refresh
-      - name: Trigger Auto Scaling Group refresh
-        env:
-          ENVIRONMENT: ${{ steps.env.outputs.environment }}
-        run: |
-          ASG_NAME="${ENVIRONMENT}-application-asg"
-
-          echo "Triggering instance refresh for ASG: ${ASG_NAME}"
-
-          # Check if ASG exists
-          if aws autoscaling describe-auto-scaling-groups \
-              --auto-scaling-group-names "${ASG_NAME}" \
-              --query 'AutoScalingGroups[0].AutoScalingGroupName' \
-              --output text 2>/dev/null | grep -q "${ASG_NAME}"; then
-
-            # Start instance refresh
-            REFRESH_ID=$(aws autoscaling start-instance-refresh \
-              --auto-scaling-group-name "${ASG_NAME}" \
-              --preferences '{
-                "MinHealthyPercentage": 50,
-                "InstanceWarmup": 300,
-                "CheckpointPercentages": [50, 100],
-                "CheckpointDelay": 300
-              }' \
-              --query 'InstanceRefreshId' \
-              --output text)
-
-            echo "Instance refresh started with ID: ${REFRESH_ID}"
-            echo "refresh_id=${REFRESH_ID}" >> $GITHUB_OUTPUT
-
-            echo ""
-            echo "========================================"
-            echo "Instance refresh initiated successfully!"
-            echo "ASG: ${ASG_NAME}"
-            echo "Refresh ID: ${REFRESH_ID}"
-            echo "========================================"
-            echo ""
-            echo "Monitor progress with:"
-            echo "aws autoscaling describe-instance-refreshes \\"
-            echo "  --auto-scaling-group-name ${ASG_NAME} \\"
-            echo "  --instance-refresh-ids ${REFRESH_ID}"
-
-          else
-            echo "WARNING: ASG '${ASG_NAME}' not found. Skipping instance refresh."
-            echo "The new artifact is uploaded to S3 and will be used for new instances."
-          fi
-
-      # ==========================================
-      # 12. DEPLOYMENT SUMMARY
-      # ==========================================
-      - name: Deployment summary
-        if: always()
-        env:
-          ENVIRONMENT: ${{ steps.env.outputs.environment }}
-          VERSION_TAG: ${{ steps.env.outputs.version_tag }}
-          ACCOUNT_ID: ${{ steps.aws.outputs.account_id }}
-        run: |
-          echo ""
-          echo "╔════════════════════════════════════════════════════════════╗"
-          echo "║           DEPLOYMENT SUMMARY                               ║"
-          echo "╚════════════════════════════════════════════════════════════╝"
-          echo ""
-          echo "Environment:       ${ENVIRONMENT}"
-          echo "Version:           ${VERSION_TAG}"
-          echo "Git Commit:        ${{ github.sha }}"
-          echo "Git Branch:        ${{ github.ref_name }}"
-          echo ""
-          echo "S3 Bucket:         artifacts-${ENVIRONMENT}-${ACCOUNT_ID}"
-          echo "S3 Path (latest):  backend/latest/app.zip"
-          if [ "${VERSION_TAG}" != "latest" ]; then
-            echo "S3 Path (version): backend/${VERSION_TAG}/app.zip"
-          fi
-          echo ""
-          echo "ASG Name:          ${ENVIRONMENT}-application-asg"
-          echo "Region:            ${AWS_REGION}"
-          echo ""
-          echo "Next steps:"
-          echo "1. Monitor instance refresh in AWS Console"
-          echo "2. Check application logs: /var/log/nestjs-app/"
-          echo "3. Verify health: http://<alb-dns>/health"
-          echo ""
-
-      # ==========================================
-      # 13. NOTIFY ON FAILURE (Optional)
-      # ==========================================
-      - name: Notify on failure
-        if: failure()
-        run: |
-          echo "❌ Deployment failed!"
-          echo "Check the logs above for details."
-          # Add Slack/Discord/email notification here if needed
+    uses: kustom-1/workflows/.github/workflows/upload-artifact.yaml@main
+    with:
+      environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'prod' }}
+      version_tag: ${{ inputs.version_tag || 'latest' }}
+      aws_region: us-east-1
+      node_version: '20.x'
+      app_name: nestjs-app
+      build_command: npm run build
+      artifact_path: dist 
+      s3_artifact_prefix: backend
+      asg_suffix: application-asg
+      working_directory: .
+      health_check_path: /health
+      log_path: /var/log/nestjs-app/
+      install_command: npm ci
+      min_healthy_percentage: 50
+      instance_warmup: 300
+    secrets:  
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}

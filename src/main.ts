@@ -33,7 +33,7 @@ async function bootstrap() {
   await app.listen(3000);
 
   // @ts-ignore: Webpack HMR
-    if ((module as any).hot) {
+    if ((module as any).hot) {  
       (module as any).hot.accept();
       (module as any).hot.dispose(() => app.close());
     }
