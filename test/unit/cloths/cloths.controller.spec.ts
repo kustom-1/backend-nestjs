@@ -15,7 +15,6 @@ describe('ClothsController', () => {
         name: 'Test Cloth',
         description: 'Test Description',
         basePrice: 29.99,
-        stock: 10,
         modelUrl: 'test-model-url',
         category: { id: 1 } as any,
     };
@@ -26,7 +25,6 @@ describe('ClothsController', () => {
         name: 'New Cloth',
         description: 'New Description',
         basePrice: 39.99,
-        stock: 5,
         modelUrl: 'new-model-url',
         category: 2,
     };
@@ -35,7 +33,6 @@ describe('ClothsController', () => {
         name: 'Updated Cloth',
         description: 'Updated Description',
         basePrice: 49.99,
-        stock: 15,
         modelUrl: 'updated-model-url',
     };
 
@@ -133,7 +130,6 @@ describe('ClothsController', () => {
                 name: 'Updated Cloth',
                 description: 'Updated Description',
                 basePrice: 49.99,
-                stock: 15,
                 modelUrl: 'updated-model-url',
             };
             service.update.mockResolvedValue(updatedCloth);

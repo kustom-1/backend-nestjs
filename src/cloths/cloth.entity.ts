@@ -9,9 +9,6 @@ export class Cloth {
   @Column('float', { name: 'base_price', default: 0 })
   basePrice: number;
 
-  @Column('int', { default: 0 })
-  stock: number;
-
   @Column({ nullable: true })
   description: string;
 
