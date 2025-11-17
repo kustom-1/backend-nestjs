@@ -7,12 +7,11 @@ export class AbacGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private permissionsService: PermissionsService,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    
     if (!user) {
       console.log('No user found in request');
       return false;
@@ -27,9 +26,9 @@ export class AbacGuard implements CanActivate {
     console.log('Check ownership:', checkOwnership);
 
     // Prepare context for verification
-    const accessContext: Record<string, any> = { 
-      userId: user.id, 
-      userRole: user.role 
+    const accessContext: Record<string, any> = {
+      userId: user.id,
+      userRole: user.role
     };
 
     // If required, check resource ownership
@@ -66,17 +65,17 @@ export class AbacGuard implements CanActivate {
   private getCheckOwnership(context: ExecutionContext): boolean {
     const handler = context.getHandler();
     const classRef = context.getClass();
-    return this.reflector.get<boolean>('checkOwnership', handler) || 
-           this.reflector.get<boolean>('checkOwnership', classRef) || 
-           false;
+    return this.reflector.get<boolean>('checkOwnership', handler) ||
+      this.reflector.get<boolean>('checkOwnership', classRef) ||
+      false;
   }
 
   private getResourceOwnerField(context: ExecutionContext): string {
     const handler = context.getHandler();
     const classRef = context.getClass();
-    return this.reflector.get<string>('resourceOwnerField', handler) || 
-           this.reflector.get<string>('resourceOwnerField', classRef) || 
-           'userId';
+    return this.reflector.get<string>('resourceOwnerField', handler) ||
+      this.reflector.get<string>('resourceOwnerField', classRef) ||
+      'userId';
   }
 
   private async getResourceOwnerId(request: any, ownerField: string, resource: string): Promise<number | null> {
@@ -91,14 +90,14 @@ export class AbacGuard implements CanActivate {
       // Here we would implement logic to fetch the resource and return the owner ID
       // For example, if the resource is 'documents', you would call the DocumentsService to get the document by ID
       console.log(`Getting owner for ${resource} with ID ${resourceId}, field ${ownerField}`);
-      
+
       // TODO: Implementar lógica específica para obtener el owner del recurso
       // Ejemplo para documentos:
       // if (resource === 'documents') {
       //   const document = await this.documentsService.findById(resourceId);
       //   return document?.[ownerField] || null;
       // }
-      
+
       return null;
     } catch (error) {
       console.error('Error getting resource owner ID:', error);

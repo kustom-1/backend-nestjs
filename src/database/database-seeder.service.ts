@@ -50,7 +50,7 @@ export class DatabaseSeederService {
     private readonly transactionRepository: Repository<Transaction>,
     @InjectRepository(RolePermission)
     private readonly rolePermissionRepository: Repository<RolePermission>,
-  ) {}
+  ) { }
 
   async seed() {
     this.logger.log('🌱 Starting database seeding...');
@@ -589,6 +589,7 @@ export class DatabaseSeederService {
 
       // Auxiliar - Limited access
       { role: UserRole.AUXILIAR, resource: 'categories', action: 'read', effect: 'allow' as const, description: 'Ver categorías' },
+      { role: UserRole.AUXILIAR, resource: 'categories', action: 'create', effect: 'allow' as const, description: 'Crear categorías' },
       { role: UserRole.AUXILIAR, resource: 'cloths', action: 'read', effect: 'allow' as const, description: 'Ver prendas' },
       { role: UserRole.AUXILIAR, resource: 'designs', action: 'read', effect: 'allow' as const, description: 'Ver diseños' },
       { role: UserRole.AUXILIAR, resource: 'orders', action: 'read', effect: 'allow' as const, description: 'Ver órdenes' },

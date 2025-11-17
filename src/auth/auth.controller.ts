@@ -7,7 +7,7 @@ import { AuthUserDto } from './dto/auth-user.dto';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @HttpCode(HttpStatus.OK)
   @Post()
