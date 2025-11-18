@@ -119,7 +119,8 @@ export class PermissionsInitializerService implements OnApplicationBootstrap {
       }
 
       // CONSULTOR: solo lectura en todos los recursos
-      for (const resource of resources) {
+      const consultorManaged = resources.filter(r => r !== 'users' && r !== 'role_permissions');
+      for (const resource of consultorManaged) {
         defaultRolePermissions.push({
           role: UserRole.CONSULTOR,
           resource,

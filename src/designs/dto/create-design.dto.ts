@@ -1,42 +1,86 @@
-import { IsOptional, IsInt, IsBoolean, IsObject } from 'class-validator';
+import { IsOptional, IsInt, IsBoolean, IsString, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { DecalTransformDto } from './decal-transform.dto';
 
 export class CreateDesignDto {
-  @ApiProperty({ required: false, type: Number })
+  @ApiProperty({
+    description: 'User ID who owns this design',
+    required: false,
+    type: Number,
+    example: 1,
+  })
   @IsOptional()
   @IsInt()
   user?: number;
 
-  @ApiProperty({ required: false, type: Number })
+  @ApiProperty({
+    description: 'Cloth ID associated with this design',
+    required: false,
+    type: Number,
+    example: 1,
+  })
   @IsOptional()
   @IsInt()
   cloth?: number;
 
-  @ApiProperty({ required: false, type: Boolean })
+  @ApiProperty({
+    description: 'Base model image ID (3D model reference)',
+    required: false,
+    type: Number,
+    example: 1,
+  })
+  @IsOptional()
+  @IsInt()
+  baseModel?: number;
+
+  @ApiProperty({
+    description: 'Decal image ID (image to be applied on the model)',
+    required: false,
+    type: Number,
+    example: 2,
+  })
+  @IsOptional()
+  @IsInt()
+  decalImage?: number;
+
+  @ApiProperty({
+    description: 'Base color in hex format',
+    required: false,
+    type: String,
+    example: '#ffffff',
+  })
+  @IsOptional()
+  @IsString()
+  baseColor?: string;
+
+  @ApiProperty({
+    description: 'Decal transformation parameters',
+    required: false,
+    type: DecalTransformDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => DecalTransformDto)
+  decal?: DecalTransformDto;
+
+  @ApiProperty({
+    description: 'Whether the design is publicly visible',
+    required: false,
+    type: Boolean,
+    default: false,
+  })
   @IsOptional()
   @IsBoolean()
   isPublic?: boolean;
 
-  @ApiProperty({ required: false, type: Boolean })
+  @ApiProperty({
+    description: 'Whether the design is active',
+    required: false,
+    type: Boolean,
+    default: true,
+  })
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
-
-  @ApiProperty({
-    required: false,
-    example: {
-      baseModel: '/shirt.glb',
-      baseColor: '#ffffff',
-      decal: {
-        imageUrl: '[inline-data-uri]',
-        position: [-0.19964031679170438, 3.230041632845925, -23.165392805743632],
-        rotation: [-89.99999167528105, -7.655592358121921e-8, -7.65559124581224e-8],
-        scale: 0.35,
-        aspectRatio: 0.5625,
-      },
-    },
-  })
-  @IsOptional()
-  @IsObject()
-  payload?: any;
 }

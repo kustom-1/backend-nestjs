@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
@@ -17,12 +17,19 @@ export class ImagesController {
   @UseGuards(AuthGuard('jwt'), AbacGuard)
   @Resource('images')
   @Action('read')
-  @ApiOperation({ summary: 'Get all images', description: 'Retrieve list of all design images' })
+  @ApiOperation({ summary: 'Get all images', description: 'Retrieve list of all design images, optionally filtered by tag' })
+  @ApiQuery({
+    name: 'tag',
+    required: false,
+    type: String,
+    description: 'Filter images by tag (searches for images containing this tag)',
+    example: '3d-model',
+  })
   @ApiResponse({ status: 200, description: 'List of images retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  findAll() {
-    return this.service.findAll();
+  findAll(@Query('tag') tag?: string) {
+    return this.service.findAll(tag);
   }
 
   @Get(':id')
