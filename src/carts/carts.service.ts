@@ -26,11 +26,28 @@ export class CartsService implements OnModuleInit {
     return item;
   }
 
+  async findByUser(userId: number, activeOnly: boolean = false): Promise<Cart[]> {
+    const where: any = { user: { id: userId } };
+    if (activeOnly) {
+      where.isActive = true;
+    }
+    const carts = await this.repo.find({ where, relations: ['user'] });
+    return carts;
+  }
+
+  async findActiveCartByUser(userId: number): Promise<Cart | null> {
+    const cart = await this.repo.findOne({
+      where: { user: { id: userId }, isActive: true },
+      relations: ['user']
+    });
+    return cart;
+  }
+
   async create(data: CreateCartDto): Promise<Cart> {
     try {
       const toSave: any = {
-        ...data,
         user: data.user ? { id: data.user } : null,
+        isActive: data.isActive !== undefined ? data.isActive : true,
       };
       const entity = this.repo.create(toSave as any);
       const saved = await this.repo.save(entity as unknown as Cart);
@@ -43,6 +60,7 @@ export class CartsService implements OnModuleInit {
   async update(id: number, data: UpdateCartDto): Promise<Cart> {
     const cart = await this.findOne(id);
     if (data.user) cart.user = { id: data.user } as any;
+    if (data.isActive !== undefined) cart.isActive = data.isActive;
     return this.repo.save(cart);
   }
 
