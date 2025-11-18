@@ -179,43 +179,43 @@ export class DatabaseSeederService {
       {
         name: 'Camiseta Básica Blanca',
         description: 'Camiseta de algodón 100% blanca',
-        price: 15000,
+        basePrice: 15000,
         category: camisetas,
       },
       {
         name: 'Camiseta Básica Negra',
         description: 'Camiseta de algodón 100% negra',
-        price: 15000,
+        basePrice: 15000,
         category: camisetas,
       },
       {
         name: 'Polo Deportivo Azul',
         description: 'Polo deportivo transpirable',
-        price: 25000,
+        basePrice: 25000,
         category: polos,
       },
       {
         name: 'Sudadera con Capucha Gris',
         description: 'Sudadera cómoda con capucha ajustable',
-        price: 45000,
+        basePrice: 45000,
         category: sudaderas,
       },
       {
         name: 'Sudadera Básica Roja',
         description: 'Sudadera sin capucha de algodón',
-        price: 38000,
+        basePrice: 38000,
         category: sudaderas,
       },
       {
         name: 'Gorra Snapback Negra',
         description: 'Gorra ajustable con visera plana',
-        price: 20000,
+        basePrice: 20000,
         category: gorras,
       },
       {
         name: 'Gorra Trucker Blanca',
         description: 'Gorra con malla trasera',
-        price: 18000,
+        basePrice: 18000,
         category: gorras,
       },
     ];
@@ -231,16 +231,8 @@ export class DatabaseSeederService {
 
     const LOGOS = [
       {
-        url: "https://www.svgrepo.com/show/452092/react.svg",
+        url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfCscjolutCHBMeWTsabdBsWZ1oPd2NMLGUw&s",
         description: "Logo de React",
-      },
-      {
-        url: "https://www.svgrepo.com/show/378837/node.svg",
-        description: "Logo de Node.js",
-      },
-      {
-        url: "https://www.svgrepo.com/show/452234/java.svg",
-        description: "Logo alternativo de React",
       },
       {
         url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh1fm5a4Ef1I0BWa6JRcjMDwA5d5Px450UEg&s",
@@ -607,6 +599,10 @@ export class DatabaseSeederService {
       { role: UserRole.CONSULTOR, resource: 'carts', action: 'create', effect: 'allow' as const, description: 'Crear carrito' },
       { role: UserRole.CONSULTOR, resource: 'carts', action: 'read', effect: 'allow' as const, description: 'Ver carrito propio' },
       { role: UserRole.CONSULTOR, resource: 'carts', action: 'update', effect: 'allow' as const, description: 'Actualizar carrito' },
+      { role: UserRole.CONSULTOR, resource: 'cart_design', action: 'create', effect: 'allow' as const, description: 'Crear carrito design' },
+      { role: UserRole.CONSULTOR, resource: 'cart_design', action: 'update', effect: 'allow' as const, description: 'Actualizar carrito design' },
+      { role: UserRole.CONSULTOR, resource: 'cart_design', action: 'read', effect: 'allow' as const, description: 'Read carrito design' },
+      { role: UserRole.CONSULTOR, resource: 'cart_design', action: 'delete', effect: 'allow' as const, description: 'Delete carrito design' },
       { role: UserRole.CONSULTOR, resource: 'orders', action: 'create', effect: 'allow' as const, description: 'Crear órdenes' },
       { role: UserRole.CONSULTOR, resource: 'orders', action: 'read', effect: 'allow' as const, description: 'Ver órdenes propias' },
 
