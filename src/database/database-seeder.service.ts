@@ -72,8 +72,8 @@ export class DatabaseSeederService {
       await this.seedCarts();
       await this.seedAddresses();
       await this.seedCartDesigns();
-      await this.seedCustomImages();
-      await this.seedDesignHistory();
+      // await this.seedCustomImages();
+      // await this.seedDesignHistory();
       await this.seedStocks();
       await this.seedOrders();
       await this.seedTransactions();
@@ -229,11 +229,34 @@ export class DatabaseSeederService {
 
     const cloths = await this.clothRepository.find();
 
-    const images = cloths.map((cloth, index) => ({
-      url: `https://via.placeholder.com/500?text=${encodeURIComponent(cloth.name)}`,
-      description: `Imagen de ${cloth.name}`,
-      cloth: cloth,
-    }));
+    const LOGOS = [
+      {
+        url: "https://www.svgrepo.com/show/452092/react.svg",
+        description: "Logo de React",
+      },
+      {
+        url: "https://www.svgrepo.com/show/378837/node.svg",
+        description: "Logo de Node.js",
+      },
+      {
+        url: "https://www.svgrepo.com/show/452234/java.svg",
+        description: "Logo alternativo de React",
+      },
+      {
+        url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh1fm5a4Ef1I0BWa6JRcjMDwA5d5Px450UEg&s",
+        description: "Logo del Cacique",
+      },
+    ];
+
+    const images = LOGOS.map((logo, index) => {
+
+      return {
+        url: logo.url,
+        description: `${logo.description}`,
+        tags: ["decal"]
+      };
+    });
+
 
     await this.imageRepository.save(images);
     this.logger.log(`  ✓ Created ${images.length} images`);

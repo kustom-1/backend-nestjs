@@ -17,11 +17,16 @@ export class DesignsService implements OnModuleInit {
   }
 
   async findAll(): Promise<Design[]> {
-    return this.repo.find({ relations: ['user', 'cloth'] });
+    return this.repo.find({
+      relations: ['user', 'cloth', 'baseModel', 'decalImage'],
+    });
   }
 
   async findOne(id: number): Promise<Design> {
-    const item = await this.repo.findOne({ where: { id }, relations: ['user', 'cloth'] });
+    const item = await this.repo.findOne({
+      where: { id },
+      relations: ['user', 'cloth', 'baseModel', 'decalImage'],
+    });
     if (!item) throw new NotFoundException(`Design ${id} not found`);
     return item;
   }
@@ -32,10 +37,13 @@ export class DesignsService implements OnModuleInit {
         ...data,
         user: data.user ? { id: data.user } : null,
         cloth: data.cloth ? { id: data.cloth } : null,
+        baseModel: data.baseModel ? { id: data.baseModel } : null,
+        decalImage: data.decalImage ? { id: data.decalImage } : null,
       };
       const entity = this.repo.create(toSave);
       const saved = await this.repo.save(entity as unknown as Design);
-      return saved as Design;
+      // Return the design with all relations loaded
+      return this.findOne(saved.id);
     } catch (error) {
       throw new InternalServerErrorException('Error creating design');
     }
@@ -45,10 +53,15 @@ export class DesignsService implements OnModuleInit {
     const design = await this.findOne(id);
     if (data.user) design.user = { id: data.user } as any;
     if (data.cloth) design.cloth = { id: data.cloth } as any;
+    if (data.baseModel) design.baseModel = { id: data.baseModel } as any;
+    if (data.decalImage) design.decalImage = { id: data.decalImage } as any;
+    if (typeof data.baseColor !== 'undefined') design.baseColor = data.baseColor;
+    if (typeof data.decal !== 'undefined') design.decal = data.decal as any;
     if (typeof data.isActive !== 'undefined') design.isActive = data.isActive;
     if (typeof data.isPublic !== 'undefined') design.isPublic = data.isPublic;
-    if (typeof data.payload !== 'undefined') design.payload = data.payload as any;
-    return this.repo.save(design);
+    await this.repo.save(design);
+    // Return the design with all relations loaded
+    return this.findOne(id);
   }
 
   async delete(id: number) {

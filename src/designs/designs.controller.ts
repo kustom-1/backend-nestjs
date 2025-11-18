@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } 
 import { DesignsService } from './designs.service';
 import { CreateDesignDto } from './dto/create-design.dto';
 import { UpdateDesignDto } from './dto/update-design.dto';
+import { DesignResponseDto } from './dto/design-response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AbacGuard } from '../permissions/guards/abac.guard';
 import { Resource, Action } from '../permissions/decorators/abac.decorator';
@@ -17,8 +18,8 @@ export class DesignsController {
   @UseGuards(AuthGuard('jwt'), AbacGuard)
   @Resource('designs')
   @Action('read')
-  @ApiOperation({ summary: 'Get all designs', description: 'Retrieve list of all custom designs' })
-  @ApiResponse({ status: 200, description: 'List of designs retrieved successfully' })
+  @ApiOperation({ summary: 'Get all designs', description: 'Retrieve list of all custom designs with associated images and transformations' })
+  @ApiResponse({ status: 200, description: 'List of designs retrieved successfully', type: [DesignResponseDto] })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   findAll() {
@@ -29,9 +30,9 @@ export class DesignsController {
   @UseGuards(AuthGuard('jwt'), AbacGuard)
   @Resource('designs')
   @Action('read')
-  @ApiOperation({ summary: 'Get design by ID', description: 'Retrieve a specific design by its ID' })
+  @ApiOperation({ summary: 'Get design by ID', description: 'Retrieve a specific design by its ID with all associated images and transformations' })
   @ApiParam({ name: 'id', type: 'number', description: 'Design ID' })
-  @ApiResponse({ status: 200, description: 'Design found' })
+  @ApiResponse({ status: 200, description: 'Design found', type: DesignResponseDto })
   @ApiResponse({ status: 404, description: 'Design not found' })
   findOne(@Param('id') id: number) {
     return this.service.findOne(id);
@@ -41,10 +42,13 @@ export class DesignsController {
   @UseGuards(AuthGuard('jwt'), AbacGuard)
   @Resource('designs')
   @Action('create')
-  @ApiOperation({ summary: 'Create design', description: 'Create a new custom design' })
+  @ApiOperation({
+    summary: 'Create design',
+    description: 'Create a new custom design with base model, decal image, color, and transformation parameters',
+  })
   @ApiBody({ type: CreateDesignDto })
-  @ApiResponse({ status: 201, description: 'Design created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 201, description: 'Design created successfully', type: DesignResponseDto })
+  @ApiResponse({ status: 400, description: 'Bad request - Invalid data provided' })
   create(@Body() dto: CreateDesignDto) {
     return this.service.create(dto);
   }
@@ -53,10 +57,13 @@ export class DesignsController {
   @UseGuards(AuthGuard('jwt'), AbacGuard)
   @Resource('designs')
   @Action('update')
-  @ApiOperation({ summary: 'Update design', description: 'Update an existing design' })
+  @ApiOperation({
+    summary: 'Update design',
+    description: 'Update an existing design including images, colors, and transformation parameters',
+  })
   @ApiParam({ name: 'id', type: 'number', description: 'Design ID' })
   @ApiBody({ type: UpdateDesignDto })
-  @ApiResponse({ status: 200, description: 'Design updated successfully' })
+  @ApiResponse({ status: 200, description: 'Design updated successfully', type: DesignResponseDto })
   @ApiResponse({ status: 404, description: 'Design not found' })
   update(@Param('id') id: number, @Body() dto: UpdateDesignDto) {
     return this.service.update(id, dto);

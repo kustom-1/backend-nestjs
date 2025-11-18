@@ -16,8 +16,17 @@ export class ImagesService implements OnModuleInit {
     this.repo = this.storageService.getRepository(Image);
   }
 
-  async findAll(): Promise<Image[]> {
-    return this.repo.find({ relations: ['user'] });
+  async findAll(tag?: string): Promise<Image[]> {
+    if (!tag) {
+      return this.repo.find({ relations: ['user'] });
+    }
+
+    // Filter by tag - since tags is a simple-array (comma-separated), we use LIKE
+    const queryBuilder = this.repo.createQueryBuilder('image')
+      .leftJoinAndSelect('image.user', 'user')
+      .where('image.tags LIKE :tag', { tag: `%${tag}%` });
+
+    return queryBuilder.getMany();
   }
 
   async findOne(id: number): Promise<Image> {
