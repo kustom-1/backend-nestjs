@@ -14,7 +14,6 @@ describe('ClothsService', () => {
         name: 'Test Cloth',
         description: 'Test Description',
         basePrice: 29.99,
-        stock: 10,
         modelUrl: 'test-model-url',
         category: { id: 1 } as any,
     };
@@ -106,7 +105,6 @@ describe('ClothsService', () => {
                 name: 'New Cloth',
                 description: 'New Description',
                 basePrice: 39.99,
-                stock: 5,
                 modelUrl: 'new-model-url',
                 category: 2,
             };
@@ -129,7 +127,6 @@ describe('ClothsService', () => {
                 name: 'New Cloth',
                 description: 'New Description',
                 basePrice: 39.99,
-                stock: 5,
                 modelUrl: 'new-model-url',
                 category: 1,
             };

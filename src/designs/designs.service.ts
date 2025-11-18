@@ -47,6 +47,7 @@ export class DesignsService implements OnModuleInit {
     if (data.cloth) design.cloth = { id: data.cloth } as any;
     if (typeof data.isActive !== 'undefined') design.isActive = data.isActive;
     if (typeof data.isPublic !== 'undefined') design.isPublic = data.isPublic;
+    if (typeof data.payload !== 'undefined') design.payload = data.payload as any;
     return this.repo.save(design);
   }
 

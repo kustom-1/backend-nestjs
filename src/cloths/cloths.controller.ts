@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } 
 import { ClothsService } from './cloths.service';
 import { CreateClothDto } from './dto/create-cloth.dto';
 import { UpdateClothDto } from './dto/update-cloth.dto';
+import { ClothResponseDto } from './dto/cloth-response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AbacGuard } from '../permissions/guards/abac.guard';
 import { Resource, Action } from '../permissions/decorators/abac.decorator';
@@ -18,7 +19,7 @@ export class ClothsController {
   @Resource('cloths')
   @Action('read')
   @ApiOperation({ summary: 'Get all cloths', description: 'Retrieve list of all clothing items' })
-  @ApiResponse({ status: 200, description: 'List of cloths retrieved successfully' })
+  @ApiResponse({ status: 200, description: 'List of cloths retrieved successfully', type: [ClothResponseDto] })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   findAll() {
@@ -31,7 +32,7 @@ export class ClothsController {
   @Action('read')
   @ApiOperation({ summary: 'Get cloth by ID', description: 'Retrieve a specific cloth by its ID' })
   @ApiParam({ name: 'id', type: 'number', description: 'Cloth ID' })
-  @ApiResponse({ status: 200, description: 'Cloth found' })
+  @ApiResponse({ status: 200, description: 'Cloth found', type: ClothResponseDto })
   @ApiResponse({ status: 404, description: 'Cloth not found' })
   findOne(@Param('id') id: number) {
     return this.service.findOne(id);
@@ -43,7 +44,7 @@ export class ClothsController {
   @Action('create')
   @ApiOperation({ summary: 'Create cloth', description: 'Create a new cloth item' })
   @ApiBody({ type: CreateClothDto })
-  @ApiResponse({ status: 201, description: 'Cloth created successfully' })
+  @ApiResponse({ status: 201, description: 'Cloth created successfully', type: ClothResponseDto })
   @ApiResponse({ status: 400, description: 'Bad request' })
   create(@Body() dto: CreateClothDto) {
     return this.service.create(dto);
@@ -56,7 +57,7 @@ export class ClothsController {
   @ApiOperation({ summary: 'Update cloth', description: 'Update an existing cloth' })
   @ApiParam({ name: 'id', type: 'number', description: 'Cloth ID' })
   @ApiBody({ type: UpdateClothDto })
-  @ApiResponse({ status: 200, description: 'Cloth updated successfully' })
+  @ApiResponse({ status: 200, description: 'Cloth updated successfully', type: ClothResponseDto })
   @ApiResponse({ status: 404, description: 'Cloth not found' })
   update(@Param('id') id: number, @Body() dto: UpdateClothDto) {
     return this.service.update(id, dto);

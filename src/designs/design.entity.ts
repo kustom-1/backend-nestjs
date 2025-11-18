@@ -20,4 +20,7 @@ export class Design {
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
+
+  @Column({ type: 'jsonb', nullable: true })
+  payload: any;
 }

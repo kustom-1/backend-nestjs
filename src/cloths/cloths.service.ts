@@ -17,11 +17,14 @@ export class ClothsService implements OnModuleInit {
   }
 
   async findAll(): Promise<Cloth[]> {
-    return this.repo.find();
+    return this.repo.find({ relations: ['category'] });
   }
 
   async findOne(id: number): Promise<Cloth> {
-    const item = await this.repo.findOne({ where: { id } });
+    const item = await this.repo.findOne({
+      where: { id },
+      relations: ['category']
+    });
     if (!item) throw new NotFoundException(`Cloth ${id} not found`);
     return item;
   }
@@ -35,7 +38,8 @@ export class ClothsService implements OnModuleInit {
       };
       const cloth = this.repo.create(toSave);
       const saved = await this.repo.save(cloth as unknown as Cloth);
-      return saved as Cloth;
+      // Return the cloth with the full category relation
+      return this.findOne(saved.id);
     } catch (error) {
       console.error('Error creating cloth:', error);
       throw new InternalServerErrorException('Error creating cloth');
@@ -44,8 +48,15 @@ export class ClothsService implements OnModuleInit {
 
   async update(id: number, data: UpdateClothDto): Promise<Cloth> {
     const cloth = await this.findOne(id);
-    Object.assign(cloth, data);
-    return this.repo.save(cloth);
+    // If category is being updated, map it to the expected format
+    if (data.category) {
+      Object.assign(cloth, { ...data, category: { id: data.category } });
+    } else {
+      Object.assign(cloth, data);
+    }
+    await this.repo.save(cloth);
+    // Return the cloth with the full category relation
+    return this.findOne(id);
   }
 
   async delete(id: number) {

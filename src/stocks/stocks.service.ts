@@ -17,11 +17,14 @@ export class StocksService implements OnModuleInit {
   }
 
   async findAll(): Promise<Stock[]> {
-    return this.repo.find({ relations: ['cloth'] });
+    return this.repo.find({ relations: ['cloth', 'cloth.category'] });
   }
 
   async findOne(id: number): Promise<Stock> {
-    const item = await this.repo.findOne({ where: { id }, relations: ['cloth'] });
+    const item = await this.repo.findOne({
+      where: { id },
+      relations: ['cloth', 'cloth.category']
+    });
     if (!item) throw new NotFoundException(`Stock ${id} not found`);
     return item;
   }
@@ -34,7 +37,8 @@ export class StocksService implements OnModuleInit {
       };
       const entity = this.repo.create(toSave as any);
       const saved = await this.repo.save(entity as unknown as Stock);
-      return saved as Stock;
+      // Return the stock with the full cloth and category relations
+      return this.findOne(saved.id);
     } catch (error) {
       throw new InternalServerErrorException('Error creating stock');
     }
@@ -47,7 +51,9 @@ export class StocksService implements OnModuleInit {
     if (data.color) s.color = data.color;
     if (data.size) s.size = data.size;
     if (typeof data.stock !== 'undefined') s.stock = data.stock;
-    return this.repo.save(s);
+    await this.repo.save(s);
+    // Return the stock with the full cloth and category relations
+    return this.findOne(id);
   }
 
   async delete(id: number) {

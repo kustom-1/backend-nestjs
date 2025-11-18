@@ -7,11 +7,6 @@ export class CreateClothDto {
   @IsOptional()
   basePrice?: number;
 
-  @ApiProperty({ required: false, type: Number, example: 10 })
-  @IsInt()
-  @IsOptional()
-  stock?: number;
-
   @ApiProperty({ required: false, type: String })
   @IsString()
   @IsOptional()
