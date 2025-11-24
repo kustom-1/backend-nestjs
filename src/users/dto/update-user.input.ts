@@ -22,7 +22,6 @@ export class UpdateUserInput {
 
   @Field({ nullable: true })
   @IsOptional()
-  @MinLength(6)
   password?: string;
 
   @Field(() => UserRole, { nullable: true })

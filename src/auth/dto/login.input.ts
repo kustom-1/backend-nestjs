@@ -10,6 +10,5 @@ export class LoginInput {
 
   @Field()
   @IsNotEmpty()
-  @MinLength(6)
   password: string;
 }

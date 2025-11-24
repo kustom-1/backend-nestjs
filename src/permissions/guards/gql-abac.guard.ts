@@ -2,6 +2,7 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { PermissionsService } from '../permissions.service';
+import { ForbiddenException, UnauthorizedException } from '../../common/exceptions/custom.exceptions';
 
 @Injectable()
 export class GqlAbacGuard implements CanActivate {
@@ -16,16 +17,16 @@ export class GqlAbacGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      console.log('No user found in GraphQL request');
-      return false;
+      throw new UnauthorizedException('Debe iniciar sesión para acceder a este recurso');
     }
 
     const { resource, action } = this.getRequiredPermission(context);
-    const checkOwnership = this.getCheckOwnership(context);
+    
+    if (!resource || !action) {
+      throw new ForbiddenException('Permisos no configurados correctamente');
+    }
 
-    console.log('User:', { id: user.id, role: user.role });
-    console.log('Required permission:', { resource, action });
-    console.log('Check ownership:', checkOwnership);
+    const checkOwnership = this.getCheckOwnership(context);
 
     // Prepare context for verification
     const accessContext: Record<string, any> = {
@@ -39,7 +40,6 @@ export class GqlAbacGuard implements CanActivate {
       const resourceOwnerId = args.userId || args.id;
       if (resourceOwnerId) {
         accessContext.resourceOwnerId = resourceOwnerId;
-        console.log('Resource owner ID:', resourceOwnerId);
       }
     }
 
@@ -52,8 +52,13 @@ export class GqlAbacGuard implements CanActivate {
       user.role,
     );
 
-    console.log('Access granted:', hasAccess);
-    return hasAccess;
+    if (!hasAccess) {
+      throw new ForbiddenException(
+        `No tiene permisos para realizar la acción '${action}' en '${resource}'`,
+      );
+    }
+
+    return true;
   }
 
   private getRequiredPermission(context: ExecutionContext): {

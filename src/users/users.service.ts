@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, OnModuleInit } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Repository } from 'typeorm';
 import { User } from "./users.entity";
 import { PasswordService } from '../common/password.service';
 import { StorageService } from '../storage/storage.service';
+import { 
+  NotFoundException, 
+  ConflictException, 
+  DatabaseException 
+} from '../common/exceptions/custom.exceptions';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -25,7 +30,7 @@ export class UsersService implements OnModuleInit {
 
     async findOne(id: number): Promise<User> {
         const user = await this.userRepository.findOne({ where: { id } });
-        if (!user) throw new NotFoundException(`User with ID '${id}' not found`);
+        if (!user) throw new NotFoundException('Usuario');
         return user;
     }
 
@@ -35,7 +40,7 @@ export class UsersService implements OnModuleInit {
 
     async create(userData: Partial<User>): Promise<User> {
         const exists = await this.userRepository.findOne({ where: { email: userData.email } });
-        if (exists) throw new BadRequestException('Email not available');
+        if (exists) throw new ConflictException('El email ya está registrado en el sistema');
         try {
             const hashedPassword = await this.passwordService.hashPassword(userData.password);
             const user = this.userRepository.create({
@@ -44,7 +49,7 @@ export class UsersService implements OnModuleInit {
             });
             return await this.userRepository.save(user);
         } catch (error) {
-            throw new InternalServerErrorException('Error creating user');
+            throw new DatabaseException('Error al crear el usuario. Intente nuevamente');
         }
     }
 
@@ -58,13 +63,13 @@ export class UsersService implements OnModuleInit {
         try {
             return await this.userRepository.save(user);
         } catch (error) {
-            throw new InternalServerErrorException('Error updating user');
+            throw new DatabaseException('Error al actualizar el usuario. Intente nuevamente');
         }
     }
 
     async delete(id: number): Promise<{ message: string }> {
         const result = await this.userRepository.delete(id);
-        if (result.affected === 0) throw new NotFoundException(`User with ID '${id}' not found`);
+        if (result.affected === 0) throw new NotFoundException('Usuario');
         return { message: 'User deleted successfully' };
     }
 }
