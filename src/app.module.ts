@@ -1,29 +1,29 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { StorageModule } from './storage/storage.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { ClothsModule } from './cloths/cloths.module';
 import { CategoriesModule } from './categories/categories.module';
-import { DesignsModule } from './designs/designs.module';
-import { ImagesModule } from './images/images.module';
-import { CartsModule } from './carts/carts.module';
-import { CustomImagesModule } from './custom-images/custom-images.module';
-import { CartDesignModule } from './cart-design/cart-design.module';
-import { StocksModule } from './stocks/stocks.module';
-import { AddressesModule } from './addresses/addresses.module';
-import { OrdersModule } from './orders/orders.module';
-import { TransactionsModule } from './transactions/transactions.module';
-import { DesignHistoryModule } from './design-history/design-history.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './common/LoggerMiddleware';
-import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    // Configuración de GraphQL
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      sortSchema: true,
+      playground: true,
+      context: ({ req }) => ({ req }),
+    }),
     // Conexión a PostgreSQL con TypeORM
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -35,25 +35,15 @@ import { HealthModule } from './health/health.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // SOLO para desarrollo, desactivar en producción
       logging: false,
+      ssl: process.env.DB_SSLMODE === 'require' ? { rejectUnauthorized: false } : false,
     }),
     DatabaseModule,
-    HealthModule,
     StorageModule,
     UsersModule,
     AuthModule,
     PermissionsModule,
     ClothsModule,
     CategoriesModule,
-    DesignsModule,
-    ImagesModule,
-    CartsModule,
-    CustomImagesModule,
-    CartDesignModule,
-    StocksModule,
-    AddressesModule,
-    OrdersModule,
-    TransactionsModule,
-    DesignHistoryModule,
   ],
 })
 export class AppModule implements NestModule {

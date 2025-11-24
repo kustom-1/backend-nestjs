@@ -1,0 +1,114 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  access_token: String!
+  user: User!
+}
+
+type Category {
+  description: String
+  id: Int!
+  name: String!
+}
+
+type Cloth {
+  basePrice: Float!
+  category: Category!
+  description: String
+  id: Int!
+  modelUrl: String
+  name: String!
+}
+
+input CreateCategoryInput {
+  description: String
+  name: String!
+}
+
+input CreateClothInput {
+  basePrice: Float!
+  category: Int!
+  description: String
+  modelUrl: String
+  name: String!
+}
+
+input CreateUserInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+  role: UserRole
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createCategory(createCategoryInput: CreateCategoryInput!): Category!
+  createCloth(createClothInput: CreateClothInput!): Cloth!
+  createUser(createUserInput: CreateUserInput!): User!
+  deleteCategory(id: Int!): String!
+  deleteCloth(id: Int!): String!
+  deleteUser(id: Int!): String!
+  login(loginInput: LoginInput!): AuthResponse!
+  register(createUserInput: CreateUserInput!): AuthResponse!
+  updateCategory(updateCategoryInput: UpdateCategoryInput!): Category!
+  updateCloth(updateClothInput: UpdateClothInput!): Cloth!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+}
+
+type Query {
+  categories: [Category!]!
+  category(id: Int!): Category!
+  cloth(id: Int!): Cloth!
+  cloths: [Cloth!]!
+  me: User!
+  user(id: Int!): User!
+  users: [User!]!
+}
+
+input UpdateCategoryInput {
+  description: String
+  id: Int!
+  name: String
+}
+
+input UpdateClothInput {
+  basePrice: Float
+  category: Int
+  description: String
+  id: Int!
+  modelUrl: String
+  name: String
+}
+
+input UpdateUserInput {
+  email: String
+  firstName: String
+  id: Int!
+  isActive: Boolean
+  lastName: String
+  password: String
+  role: UserRole
+}
+
+type User {
+  email: String!
+  firstName: String!
+  id: Int!
+  isActive: Boolean!
+  lastName: String!
+  role: UserRole!
+}
+
+"""Roles disponibles para usuarios"""
+enum UserRole {
+  AUXILIAR
+  CONSULTOR
+  COORDINADOR
+}
