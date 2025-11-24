@@ -12,6 +12,11 @@ import { ClothsModule } from './cloths/cloths.module';
 import { CategoriesModule } from './categories/categories.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './common/LoggerMiddleware';
+import { User } from './users/users.entity';
+import { Category } from './categories/category.entity';
+import { Cloth } from './cloths/cloth.entity';
+import { RolePermission } from './permissions/role-permission.entity';
+import { UserRoleMapping } from './permissions/user-role.entity';
 
 @Module({
   imports: [
@@ -32,7 +37,7 @@ import { LoggerMiddleware } from './common/LoggerMiddleware';
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASS || 'postgres',
       database: process.env.DB_NAME || 'app_db',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [User, Category, Cloth, RolePermission, UserRoleMapping],
       synchronize: true, // SOLO para desarrollo, desactivar en producción
       logging: false,
       ssl: process.env.DB_SSLMODE === 'require' ? { rejectUnauthorized: false } : false,

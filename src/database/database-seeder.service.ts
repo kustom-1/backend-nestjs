@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '../users/users.entity';
 import { Category } from '../categories/category.entity';
@@ -11,33 +10,37 @@ import { RolePermission } from '../permissions/role-permission.entity';
 export class DatabaseSeederService {
   private readonly logger = new Logger(DatabaseSeederService.name);
 
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>,
-    @InjectRepository(Cloth)
-    private readonly clothRepository: Repository<Cloth>,
-    @InjectRepository(RolePermission)
-    private readonly rolePermissionRepository: Repository<RolePermission>,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async seed() {
     this.logger.log('🌱 Starting database seeding...');
 
     try {
+      // Wait a bit for TypeORM to be fully initialized
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Verify connection is ready
+      if (!this.dataSource.isInitialized) {
+        throw new Error('DataSource is not initialized');
+      }
+
+      const userRepository = this.dataSource.manager.getRepository(User);
+      const categoryRepository = this.dataSource.manager.getRepository(Category);
+      const clothRepository = this.dataSource.manager.getRepository(Cloth);
+      const rolePermissionRepository = this.dataSource.manager.getRepository(RolePermission);
+
       // Check if data already exists
-      const userCount = await this.userRepository.count();
+      const userCount = await userRepository.count();
       if (userCount > 0) {
         this.logger.warn('⚠️  Database already seeded. Skipping...');
         return;
       }
 
       // Seed in order (respecting foreign keys)
-      await this.seedUsers();
-      await this.seedCategories();
-      await this.seedCloths();
-      await this.seedRolePermissions();
+      await this.seedUsers(userRepository);
+      await this.seedCategories(categoryRepository);
+      await this.seedCloths(clothRepository, categoryRepository);
+      await this.seedRolePermissions(rolePermissionRepository);
 
       this.logger.log('✅ Database seeding completed successfully!');
     } catch (error) {
@@ -46,7 +49,7 @@ export class DatabaseSeederService {
     }
   }
 
-  private async seedUsers() {
+  private async seedUsers(userRepository) {
     this.logger.log('👥 Seeding users...');
     const password = await bcrypt.hash('1234', 10);
 
@@ -93,11 +96,11 @@ export class DatabaseSeederService {
       },
     ];
 
-    await this.userRepository.save(users);
+    await userRepository.save(users);
     this.logger.log(`  ✓ Created ${users.length} users`);
   }
 
-  private async seedCategories() {
+  private async seedCategories(categoryRepository) {
     this.logger.log('📁 Seeding categories...');
     const categories = [
       {
@@ -122,14 +125,14 @@ export class DatabaseSeederService {
       },
     ];
 
-    await this.categoryRepository.save(categories);
+    await categoryRepository.save(categories);
     this.logger.log(`  ✓ Created ${categories.length} categories`);
   }
 
-  private async seedCloths() {
+  private async seedCloths(clothRepository, categoryRepository) {
     this.logger.log('👕 Seeding cloths...');
 
-    const categories = await this.categoryRepository.find();
+    const categories = await categoryRepository.find();
     const camisetas = categories.find(c => c.name === 'Camisetas');
     const polos = categories.find(c => c.name === 'Polos');
     const sudaderas = categories.find(c => c.name === 'Sudaderas');
@@ -180,11 +183,11 @@ export class DatabaseSeederService {
       },
     ];
 
-    await this.clothRepository.save(cloths);
+    await clothRepository.save(cloths);
     this.logger.log(`  ✓ Created ${cloths.length} cloths`);
   }
 
-  private async seedRolePermissions() {
+  private async seedRolePermissions(rolePermissionRepository) {
     this.logger.log('🔐 Seeding role permissions...');
 
     const permissions = [
@@ -215,7 +218,8 @@ export class DatabaseSeederService {
       { role: UserRole.AUXILIAR, resource: 'users', action: 'read', effect: 'allow' as const, description: 'Ver usuarios' },
     ];
 
-    await this.rolePermissionRepository.save(permissions);
+    await rolePermissionRepository.save(permissions);
     this.logger.log(`  ✓ Created ${permissions.length} role permissions`);
   }
 }
+

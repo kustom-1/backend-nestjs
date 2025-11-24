@@ -57,6 +57,9 @@ type Mutation {
   deleteUser(id: Int!): String!
   login(loginInput: LoginInput!): AuthResponse!
   register(createUserInput: CreateUserInput!): AuthResponse!
+
+  """Seed the database with initial data"""
+  seedDatabase: String!
   updateCategory(updateCategoryInput: UpdateCategoryInput!): Category!
   updateCloth(updateClothInput: UpdateClothInput!): Cloth!
   updateUser(updateUserInput: UpdateUserInput!): User!

@@ -1,211 +1,500 @@
-# backend-nestjs
+# Kustom API - GraphQL Backend
 
-## 🚀 **Inicio Rápido**
+API GraphQL para la gestión de usuarios, categorías y prendas personalizables. Sistema de autenticación JWT con control de acceso basado en roles (RBAC/ABAC).
 
-### **Prerequisitos**
+## Tabla de Contenidos
 
-- Docker & Docker Compose
-- Node.js 18+ (para desarrollo local)
-- npm o yarn
+- [Características](#características)
+- [Tecnologías](#tecnologías)
+- [Requisitos Previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Configuración](#configuración)
+- [Uso](#uso)
+- [API Reference](#api-reference)
+- [Roles y Permisos](#roles-y-permisos)
 
-### **Levantar el Entorno**
+## Características
+
+- **Autenticación JWT** - Sistema de login y registro seguro
+- **Gestión de Usuarios** - CRUD completo con roles diferenciados
+- **Categorías** - Organización de productos por categorías
+- **Prendas Personalizables** - Catálogo de productos con precios y modelos
+- **Control de Acceso** - Sistema ABAC (Attribute-Based Access Control)
+- **100% GraphQL** - Sin endpoints REST
+- **Auto-Seeding** - Datos de prueba precargados
+- **Docker Ready** - Contenedores para desarrollo local
+
+## Tecnologías
+
+- **NestJS 11** - Framework backend
+- **GraphQL** - API query language
+- **Apollo Server** - GraphQL server
+- **TypeORM** - ORM para PostgreSQL
+- **PostgreSQL 15** - Base de datos
+- **JWT** - Autenticación
+- **bcrypt** - Hash de contraseñas
+- **Docker** - Contenedorización
+
+## Requisitos Previos
+
+- Node.js >= 20.0.0
+- npm >= 10.0.0
+- Docker y Docker Compose (para base de datos)
+
+## Instalación
+
+### 1. Clonar el repositorio
 
 ```bash
-# Clonar el repositorio
-git clone <repository-url>
+git clone https://github.com/kustom-1/backend-nestjs.git
 cd backend-nestjs
-
-# Instalar dependencias
-npm install
-
-# Crear archivo .env
-cp .env.docker.example .env
-
-# Levantar bases de datos y pgAdmin
-docker-compose up -d
-
-# Iniciar la aplicación (espera a que se creen las tablas)
-npm run start:dev
-
-# En otra terminal, ejecutar el seeding de datos
-npm run seed
+git checkout graph
 ```
 
-### **URLs de Acceso**
+### 2. Instalar dependencias
 
-- **API**: http://localhost:3000
-- **pgAdmin**: http://localhost:5050
-  - Email: `admin@kustom.com`
-  - Contraseña: `admin123`
-- **PostgreSQL**: localhost:5432
-- **MongoDB**: localhost:27017
+```bash
+npm install
+```
 
-### **Usuarios de Prueba**
-asd
-Todos con contraseña `1234`:
+### 3. Configurar variables de entorno
 
-| Email | Rol | Uso |
-|-------|-----|-----|
-| raul@admin.com | Coordinador | Usado en colección Postman |
-| carlos@consultor.com | Consultor | Testing de permisos |
-| maria@auxiliar.com | Auxiliar | Testing de permisos |
+Crea un archivo `.env` en la raíz del proyecto:
 
-## 📚 **Documentación Adicional**
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=app_db
+DB_SSLMODE=disable
 
-- [Base de Datos](./database/README.md) - Scripts SQL, pgAdmin y datos de prueba
-- [Colección Postman](./postman/kustom-api.postman_collection.json) - 80 endpoints documentados
-- [Environment Postman](./postman//KUSTOM_API_ENV_POSTMAN.postman_environment.json) - Variables de entorno
-asdasd
-## Informe de Funcionalidades de la API
+# Application
+APP_PORT=3000
 
-Este informe detalla las funcionalidades implementadas en la API, incluyendo la descripción de cada endpoint, sus parámetros y respuestas, así como la implementación de la autenticación, autorización y persistencia.
+# PgAdmin (opcional)
+PGADMIN_EMAIL=admin@kustom.com
+PGADMIN_PASSWORD=admin123
+PGADMIN_PORT=5050
+```
 
-### Autenticación y Autorización
+### 4. Levantar la base de datos
 
-La API utiliza un esquema de autenticación basado en JSON Web Tokens (JWT).
+```bash
+docker-compose up -d postgres
+```
 
-*   **Autenticación**: El endpoint `POST /auth` permite a los usuarios autenticarse con su email y contraseña. Si las credenciales son válidas, la API retorna un `access_token` JWT. Este token debe ser incluido en la cabecera `Authorization` de las solicitudes a los endpoints protegidos, con el formato `Bearer {access_token}`.
+### 5. Iniciar la aplicación
 
-*   **Autorización**: La autorización se implementa a nivel de roles. Existen tres roles definidos: `Coordinador`, `Consultor` y `Auxiliar`. Cada rol tiene asociados una serie de permisos que le permiten o deniegan el acceso a determinados endpoints o acciones. La API utiliza guardas (`guards`) de NestJS para verificar los permisos del usuario en cada solicitud. Los permisos se gestionan a través de los endpoints del módulo `Role Permissions`.
+```bash
+# Modo desarrollo
+npm run start:dev
 
-### Persistencia de Datos
+# Modo producción
+npm run build
+npm run start:prod
+```
 
-La API utiliza dos bases de datos para la persistencia de la información:
+La aplicación estará disponible en:
+- **GraphQL Playground:** http://localhost:3000/graphql
+- **API GraphQL:** http://localhost:3000/graphql
 
-*   **PostgreSQL**: Es la base de datos principal, utilizada para almacenar la información de negocio de la aplicación, como usuarios, productos, diseños, órdenes, etc. Se utiliza TypeORM como ORM para interactuar con la base de datos.
+## Configuración
 
-*   **MongoDB**: Se utiliza para el módulo de auditoría. Cada acción relevante que ocurre en la API (creación de un usuario, actualización de un producto, etc.) se registra en una colección de MongoDB. Esto permite tener un historial completo de todas las operaciones realizadas en el sistema.
+### Base de Datos
 
-### Descripción de Endpoints
+La aplicación se conecta automáticamente a PostgreSQL y:
+- Crea las tablas automáticamente (`synchronize: true`)
+- Ejecuta los seeds si la base de datos está vacía
+- Configura 116 permisos por defecto
 
-A continuación se describen los principales endpoints de la API, agrupados por módulo.
+### PgAdmin (Opcional)
 
-#### Auth
+Para administrar la base de datos visualmente:
 
-*   **`POST /auth`**: Autentica a un usuario y retorna un `access_token`.
-    *   **Body**: `{ "email": "user@example.com", "password": "user_password" }`
-    *   **Respuesta**: `{ "access_token": "jwt_token" }`
+```bash
+docker-compose up -d pgadmin
+```
 
-#### Users
+Accede en http://localhost:5050 con:
+- Email: `admin@kustom.com`
+- Password: `admin123`
 
-*   **`GET /users`**: Obtiene una lista de todos los usuarios.
-*   **`GET /users/{id}`**: Obtiene un usuario por su ID.
-*   **`POST /users`**: Crea un nuevo usuario.
-*   **`PUT /users/{id}`**: Actualiza un usuario existente.
-*   **`DELETE /users/{id}`**: Elimina un usuario.
+## Uso
 
-#### Categories
+### Acceder a GraphQL Playground
 
-*   **`GET /categories`**: Obtiene una lista de todas las categorías de productos.
-*   **`GET /categories/{id}`**: Obtiene una categoría por su ID.
-*   **`POST /categories`**: Crea una nueva categoría.
-*   **`PUT /categories/{id}`**: Actualiza una categoría existente.
-*   **`DELETE /categories/{id}`**: Elimina una categoría.
+Abre tu navegador en http://localhost:3000/graphql
 
-#### Cloths
+### Autenticación
 
-*   **`GET /cloths`**: Obtiene una lista de todas las prendas base.
-*   **`GET /cloths/{id}`**: Obtiene una prenda por su ID.
-*   **`POST /cloths`**: Crea una nueva prenda.
-*   **`PUT /cloths/{id}`**: Actualiza una prenda existente.
-*   **`DELETE /cloths/{id}`**: Elimina una prenda.
+1. **Login** para obtener el token:
 
-#### Designs
+```graphql
+mutation {
+  login(loginInput: {
+    email: "admin@kustom.com"
+    password: "1234"
+  }) {
+    access_token
+    user {
+      id
+      email
+      role
+    }
+  }
+}
+```
 
-*   **`GET /designs`**: Obtiene una lista de todos los diseños.
-*   **`GET /designs/{id}`**: Obtiene un diseño por su ID.
-*   **`POST /designs`**: Crea un nuevo diseño.
-*   **`PUT /designs/{id}`**: Actualiza un diseño existente.
-*   **`DELETE /designs/{id}`**: Elimina un diseño.
+2. **Añadir el token** en los headers (panel inferior del Playground):
 
-#### Images
+```json
+{
+  "Authorization": "Bearer YOUR_TOKEN_HERE"
+}
+```
 
-*   **`GET /images`**: Obtiene una lista de todas las imágenes.
-*   **`GET /images/{id}`**: Obtiene una imagen por su ID.
-*   **`POST /images`**: Sube una nueva imagen.
-*   **`PUT /images/{id}`**: Actualiza una imagen existente.
-*   **`DELETE /images/{id}`**: Elimina una imagen.
+### Usuarios de Prueba
 
-#### Carts
+| Email | Password | Rol | Permisos |
+|-------|----------|-----|----------|
+| admin@kustom.com | 1234 | COORDINADOR | Acceso completo |
+| raul@admin.com | 1234 | COORDINADOR | Acceso completo |
+| carlos@consultor.com | 1234 | CONSULTOR | Ver y crear prendas |
+| maria@auxiliar.com | 1234 | AUXILIAR | Ver todo, crear categorías |
+| juan@kustom.com | 1234 | CONSULTOR | Ver y crear prendas |
 
-*   **`GET /carts`**: Obtiene el carrito de compras del usuario autenticado.
-*   **`GET /carts/{id}`**: Obtiene un carrito por su ID.
-*   **`POST /carts`**: Crea un nuevo carrito.
-*   **`PUT /carts/{id}`**: Actualiza un carrito existente.
-*   **`DELETE /carts/{id}`**: Elimina un carrito.
+## API Reference
 
-#### Addresses
+### Queries y Mutations Públicas
 
-*   **`GET /addresses`**: Obtiene las direcciones del usuario autenticado.
-*   **`GET /addresses/{id}`**: Obtiene una dirección por su ID.
-*   **`POST /addresses`**: Crea una nueva dirección.
-*   **`PUT /addresses/{id}`**: Actualiza una dirección existente.
-*   **`DELETE /addresses/{id}`**: Elimina una dirección.
+#### Autenticación
 
-#### Cart Design
+```graphql
+# Registrar nuevo usuario
+mutation {
+  register(createUserInput: {
+    email: "nuevo@example.com"
+    password: "123456"
+    firstName: "Nuevo"
+    lastName: "Usuario"
+    role: CONSULTOR
+  }) {
+    access_token
+    user {
+      id
+      email
+      firstName
+      lastName
+      role
+    }
+  }
+}
 
-*   **`GET /cart-design`**: Obtiene los diseños en el carrito del usuario.
-*   **`GET /cart-design/{id}`**: Obtiene un diseño del carrito por su ID.
-*   **`POST /cart-design`**: Agrega un diseño al carrito.
-*   **`PUT /cart-design/{id}`**: Actualiza un diseño en el carrito.
-*   **`DELETE /cart-design/{id}`**: Elimina un diseño del carrito.
+# Login
+mutation {
+  login(loginInput: {
+    email: "admin@kustom.com"
+    password: "1234"
+  }) {
+    access_token
+    user {
+      id
+      email
+      firstName
+      lastName
+      role
+    }
+  }
+}
+```
 
-#### Custom Images
+#### Categorías
 
-*   **`GET /custom-images`**: Obtiene las imágenes personalizadas de un diseño.
-*   **`GET /custom-images/{id}`**: Obtiene una imagen personalizada por su ID.
-*   **`POST /custom-images`**: Agrega una imagen personalizada a un diseño.
-*   **`PUT /custom-images/{id}`**: Actualiza una imagen personalizada.
-*   **`DELETE /custom-images/{id}`**: Elimina una imagen personalizada.
+```graphql
+# Listar todas las categorías
+query {
+  categories {
+    id
+    name
+    description
+  }
+}
 
-#### Design History
+# Obtener categoría por ID
+query {
+  category(id: 1) {
+    id
+    name
+    description
+  }
+}
+```
 
-*   **`GET /design-history`**: Obtiene el historial de cambios de un diseño.
-*   **`GET /design-history/{id}`**: Obtiene un registro del historial por su ID.
-*   **`POST /design-history`**: Crea un nuevo registro en el historial.
-*   **`PUT /design-history/{id}`**: Actualiza un registro del historial.
-*   **`DELETE /design-history/{id}`**: Elimina un registro del historial.
+#### Prendas/Cloths
 
-#### Orders
+```graphql
+# Listar todas las prendas
+query {
+  cloths {
+    id
+    name
+    description
+    basePrice
+    modelUrl
+    category {
+      id
+      name
+    }
+  }
+}
 
-*   **`GET /orders`**: Obtiene las órdenes del usuario autenticado.
-*   **`GET /orders/{id}`**: Obtiene una orden por su ID.
-*   **`POST /orders`**: Crea una nueva orden.
-*   **`PUT /orders/{id}`**: Actualiza una orden existente.
-*   **`DELETE /orders/{id}`**: Elimina una orden.
+# Obtener prenda por ID
+query {
+  cloth(id: 1) {
+    id
+    name
+    basePrice
+    category {
+      name
+    }
+  }
+}
+```
 
-#### Stocks
+### Queries y Mutations Protegidas
 
-*   **`GET /stocks`**: Obtiene el stock de las prendas.
-*   **`GET /stocks/{id}`**: Obtiene el stock de una prenda por su ID.
-*   **`POST /stocks`**: Crea un nuevo registro de stock.
-*   **`PUT /stocks/{id}`**: Actualiza un registro de stock.
-*   **`DELETE /stocks/{id}`**: Elimina un registro de stock.
+#### Usuario Actual
 
-#### Transactions
+```graphql
+# Ver mi perfil (requiere autenticación)
+query {
+  me {
+    id
+    email
+    firstName
+    lastName
+    role
+    isActive
+  }
+}
+```
 
-*   **`GET /transactions`**: Obtiene las transacciones de una orden.
-*   **`GET /transactions/{id}`**: Obtiene una transacción por su ID.
-*   **`POST /transactions`**: Crea una nueva transacción.
-*   **`PUT /transactions/{id}`**: Actualiza una transacción.
-*   **`DELETE /transactions/{id}`**: Elimina una transacción.
+#### Usuarios (Solo COORDINADOR)
 
-#### Audit
+```graphql
+# Listar usuarios
+query {
+  users {
+    id
+    email
+    firstName
+    lastName
+    role
+    isActive
+  }
+}
 
-*   **`GET /audit/logs`**: Obtiene los logs de auditoría.
-*   **`GET /audit/user/{id}`**: Obtiene la actividad de un usuario.
-*   **`GET /audit/stats`**: Obtiene estadísticas de auditoría.
-*   **`GET /audit/resource/{resource}/{id}`**: Obtiene el historial de un recurso.
-*   **`DELETE /audit/clean`**: Limpia los logs de auditoría antiguos.
+# Crear usuario
+mutation {
+  createUser(createUserInput: {
+    email: "test@example.com"
+    password: "123456"
+    firstName: "Test"
+    lastName: "User"
+    role: CONSULTOR
+  }) {
+    id
+    email
+    role
+  }
+}
 
-#### Role Permissions
+# Actualizar usuario
+mutation {
+  updateUser(updateUserInput: {
+    id: 5
+    firstName: "Nombre Actualizado"
+    role: AUXILIAR
+  }) {
+    id
+    firstName
+    role
+  }
+}
 
-*   **`GET /role-permissions`**: Obtiene todos los permisos de roles.
-*   **`GET /role-permissions/by-role/{role}`**: Obtiene los permisos de un rol.
-*   **`GET /role-permissions/resources`**: Obtiene los recursos disponibles.
-*   **`GET /role-permissions/actions`**: Obtiene las acciones disponibles.
-*   **`POST /role-permissions`**: Crea un nuevo permiso de rol.
-*   **`POST /role-permissions/check`**: Verifica si un rol tiene un permiso.
-*   **`POST /role-permissions/initialize`**: Inicializa los permisos de los roles.
-*   **`PUT /role-permissions/{id}`**: Actualiza un permiso de rol.
-*   **`DELETE /role-permissions/{id}`**: Elimina un permiso de rol.
+# Eliminar usuario
+mutation {
+  deleteUser(id: 5)
+}
+```
+
+#### Categorías (Mutations - Solo COORDINADOR)
+
+```graphql
+# Crear categoría
+mutation {
+  createCategory(createCategoryInput: {
+    name: "Nueva Categoría"
+    description: "Descripción"
+  }) {
+    id
+    name
+    description
+  }
+}
+
+# Actualizar categoría
+mutation {
+  updateCategory(updateCategoryInput: {
+    id: 6
+    name: "Categoría Actualizada"
+  }) {
+    id
+    name
+  }
+}
+
+# Eliminar categoría
+mutation {
+  deleteCategory(id: 6)
+}
+```
+
+#### Prendas (Mutations - Requiere permisos)
+
+```graphql
+# Crear prenda
+mutation {
+  createCloth(createClothInput: {
+    name: "Camiseta Nueva"
+    description: "Descripción"
+    basePrice: 25000
+    category: 1
+    modelUrl: "https://example.com/model.png"
+  }) {
+    id
+    name
+    basePrice
+    category {
+      name
+    }
+  }
+}
+
+# Actualizar prenda
+mutation {
+  updateCloth(updateClothInput: {
+    id: 8
+    name: "Camiseta Actualizada"
+    basePrice: 30000
+  }) {
+    id
+    name
+    basePrice
+  }
+}
+
+# Eliminar prenda
+mutation {
+  deleteCloth(id: 8)
+}
+```
+
+## Roles y Permisos
+
+### COORDINADOR (Administrador)
+- **Users:** CRUD completo
+- **Categories:** CRUD completo
+- **Cloths:** CRUD completo
+- Acceso total a la plataforma
+
+### CONSULTOR (Usuario Regular)
+- **Categories:** Solo lectura
+- **Cloths:** Lectura y creación (prendas personalizadas)
+- No puede gestionar usuarios ni categorías
+
+### AUXILIAR (Asistente)
+- **Categories:** Lectura y creación
+- **Cloths:** Solo lectura
+- **Users:** Solo lectura
+- No puede crear usuarios
+
+## Estructura del Proyecto
+
+```
+src/
+├── auth/                 # Autenticación JWT
+│   ├── auth.resolver.ts  # Login, Register, Me
+│   ├── auth.service.ts
+│   └── guards/
+├── users/                # Gestión de usuarios
+│   ├── users.resolver.ts
+│   ├── users.service.ts
+│   └── users.entity.ts
+├── categories/           # Gestión de categorías
+│   ├── categories.resolver.ts
+│   ├── categories.service.ts
+│   └── category.entity.ts
+├── cloths/              # Gestión de prendas
+│   ├── cloths.resolver.ts
+│   ├── cloths.service.ts
+│   └── cloth.entity.ts
+├── permissions/         # Sistema de permisos
+│   ├── permissions.service.ts
+│   ├── role-permission.entity.ts
+│   └── guards/
+├── database/            # Seeds y configuración DB
+└── storage/             # Estrategia de conexión DB
+```
+
+## Testing
+
+```bash
+# Tests unitarios
+npm run test
+
+# Tests e2e
+npm run test:e2e
+
+# Coverage
+npm run test:cov
+```
+
+## Docker
+
+### Servicios disponibles
+
+```bash
+# Solo PostgreSQL
+docker-compose up -d postgres
+
+# PostgreSQL + PgAdmin
+docker-compose up -d postgres pgadmin
+
+# Todo (incluye backend)
+docker-compose up -d
+```
+
+### Detener servicios
+
+```bash
+docker-compose down
+```
+
+## Scripts Disponibles
+
+```bash
+npm run start          # Iniciar en modo normal
+npm run start:dev      # Iniciar en modo desarrollo (HMR)
+npm run start:prod     # Iniciar en modo producción
+npm run build          # Compilar el proyecto
+npm run lint           # Ejecutar linter
+npm run format         # Formatear código
+npm run seed           # Ejecutar seeds manualmente
+```
+
+---
+
+**Nota:** Esta es la rama `graph` con implementación 100% GraphQL. La versión REST original está en la rama principal.
