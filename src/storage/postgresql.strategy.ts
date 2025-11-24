@@ -6,16 +6,6 @@ import { User } from '../users/users.entity';
 import { RolePermission } from '../permissions/role-permission.entity';
 import { Cloth } from '../cloths/cloth.entity';
 import { Category } from '../categories/category.entity';
-import { Design } from '../designs/design.entity';
-import { Image } from '../images/image.entity';
-import { Cart } from '../carts/cart.entity';
-import { CustomImage } from '../custom-images/custom-image.entity';
-import { CartDesign } from '../cart-design/cart-design.entity';
-import { Stock } from '../stocks/stock.entity';
-import { Address } from '../addresses/address.entity';
-import { Order } from '../orders/order.entity';
-import { Transaction } from '../transactions/transaction.entity';
-import { DesignHistory } from '../design-history/design-history.entity';
 import { UserRoleMapping } from '../permissions/user-role.entity';
 
 @Injectable()
@@ -47,16 +37,6 @@ export class PostgreSQLStrategy implements StorageStrategy, OnModuleDestroy {
         UserRoleMapping,
         Cloth,
         Category,
-        Design,
-        Image,
-        Cart,
-        CustomImage,
-        CartDesign,
-        Stock,
-        Address,
-        Order,
-        Transaction,
-        DesignHistory,
       ], // Entidades de la base de datos que usan postgresql
       logging: false,
     };
