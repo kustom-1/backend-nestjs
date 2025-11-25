@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { prototype } from 'events';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -22,9 +23,10 @@ async function bootstrap() {
 
   // Filtro global de excepciones
   app.useGlobalFilters(new GlobalExceptionFilter());
+  const port = process.env.PORT || 3000;
 
-  await app.listen(3000);
-  console.log(`🚀 GraphQL API running on: http://localhost:3000/graphql`);
+  await app.listen(port, '0.0.0.0');
+  console.log(`GraphQL API running on: http://localhost:${port}/graphql`);
 
   // @ts-ignore: Webpack HMR
   if ((module as any).hot) {
